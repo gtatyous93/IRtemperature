@@ -1,12 +1,36 @@
-mport <CoreImage/CoreImage.h>
-#import <CoreImage/CoreImage.h>
-#import <QuartzCore/QuartzCore.h>   
-
-
-#import "AppDelegate.h"
+mport "AppDelegate.h"
 
 #import "ViewController.h"
 
+
+@implementation VideoFrameGuy
+///////
+///////
+
+/*
+
+- (void)startCameraCapture;
+{
+    if (![captureSession isRunning])
+    {
+        [captureSession startRunning];
+    };
+}
+
+- (void)stopCameraCapture;
+{
+    if ([captureSession isRunning])
+    {
+        [captureSession stopRunning];
+    }
+}
+
+*/
+//////
+
+
+
+@end
 
 @implementation AppDelegate
 
@@ -21,7 +45,110 @@ typedef enum FeatureWidth
     LE_M, //left eye to mouth
 } FeatureWidth_t;
 
+
+
+-(void) setupCaptureSession
+{
+    //Enable back-facing camera and set up a capture session, generate a stream out output frames and pass them to a callback serial queue
+    
+    
+    // Grab the back-facing camera
+    AVCaptureDevice *backFacingCamera = nil;
+    NSArray *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
+    for (AVCaptureDevice *device in devices)
+    {
+        if ([device position] == AVCaptureDevicePositionBack)
+        {
+            backFacingCamera = device;
+        }
+    }
+    
+    // Create the capture session
+    AVCaptureSession *captureSession = [[AVCaptureSession alloc] init];
+    
+    // Add the video input
+    NSError *error = nil;
+    AVCaptureDeviceInput* videoInput = [[AVCaptureDeviceInput alloc] initWithDevice:backFacingCamera error:&error];
+    
+    
+    if ([captureSession canAddInput:videoInput])
+    {
+        [captureSession addInput:videoInput];
+    }
+    
+    // Add the video frame output
+    AVCaptureVideoDataOutput* videoOutput = [[AVCaptureVideoDataOutput alloc] init];
+    [videoOutput setAlwaysDiscardsLateVideoFrames:YES];
+    [videoOutput setVideoSettings:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:kCVPixelFormatType_32BGRA] forKey:(id)kCVPixelBufferPixelFormatTypeKey]];
+    
+    
+    //////////TODO: implement queue callback
+    [videoOutput setSampleBufferDelegate:self queue:dispatch_get_main_queue()];
+    
+    if ([captureSession canAddOutput:videoOutput])
+    {
+        [captureSession addOutput:videoOutput];
+    }
+    else
+    {
+        NSLog(@"Couldn't add video output");
+    }
+    
+    // Start capturing
+    [captureSession setSessionPreset:AVCaptureSessionPreset640x480];
+    if (![captureSession isRunning])
+    {
+        [captureSession startRunning];
+    };
+}
+
+
 /*
+- (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection
+{
+    //
+    
+    
+    // got an image
+    CVPixelBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
+    CFDictionaryRef attachments = CMCopyDictionaryOfAttachments(kCFAllocatorDefault, sampleBuffer, kCMAttachmentMode_ShouldPropagate);
+    CIImage *ciImage = [[CIImage alloc] initWithCVPixelBuffer:pixelBuffer options:(__bridge NSDictionary *)attachments];
+    if (attachments)
+        CFRelease(attachments);
+    
+    /* kCGImagePropertyOrientation values
+     The intended display orientation of the image. If present, this key is a CFNumber value with the same value as defined
+     by the TIFF and EXIF specifications -- see enumeration of integer constants.
+     The value specified where the origin (0,0) of the image is located. If not present, a value of 1 is assumed.
+     
+     used when calling featuresInImage: options: The value for this key is an integer NSNumber from 1..8 as found in kCGImagePropertyOrientation.
+     If present, the detection will be done based on that orientation but the coordinates in the returned features will still be based on those of the image. */
+/*
+
+    int exifOrientation = 6; //   6  =  0th row is on the right, and 0th column is the top. Portrait mode.
+    NSDictionary *imageOptions = @{CIDetectorImageOrientation : @(exifOrientation)};
+    NSArray *features = [self.faceDetector featuresInImage:ciImage options:imageOptions];
+    
+    // get the clean aperture
+    // the clean aperture is a rectangle that defines the portion of the encoded pixel dimensions
+    // that represents image data valid for display.
+    CMFormatDescriptionRef fdesc = CMSampleBufferGetFormatDescription(sampleBuffer);
+    CGRect clap = CMVideoFormatDescriptionGetCleanAperture(fdesc, false );
+    
+    // called asynchronously as the capture output is capturing sample buffers, this method asks the face detector
+    // to detect features
+    dispatch_async(dispatch_get_main_queue(), ^(void) {
+        CGSize parentFrameSize = [self.previewView frame].size;
+        NSString *gravity = [self.previewLayer videoGravity];
+        
+        CGRect previewBox = [DetectFace videoPreviewBoxForGravity:gravity frameSize:parentFrameSize apertureSize:clap.size];
+        if([self.delegate respondsToSelector:@selector(detectedFaceController:features:forVideoBox:withPreviewBox:)])
+            [self.delegate detectedFaceController:self features:features forVideoBox:clap withPreviewBox:previewBox];
+    });
+}
+*/
+
+
 -(void)markFaces:(UIImageView *)facePicture
 {
     // draw a CI image with the previously loaded face detection picture
@@ -120,9 +247,9 @@ typedef enum FeatureWidth
     
 }
 
-*/
 
--(void)getFeatureWidth(void)
+//this should be the frame callback
+-(void)getFeatureWidth:(UIImageView *)facePicture
 {
     //// Belongs in initialization of a class
     CIImage* image = [CIImage imageWithCGImage:facePicture.image.CGImage]; //extract frames from video?
@@ -137,24 +264,32 @@ typedef enum FeatureWidth
     {
         // get the width of the face
         CGFloat faceWidth = faceFeature.bounds.size.width;
+        //eye distance
         if(faceFeature.hasLeftEyePosition && faceFeature.hasRightEyePosition)
-        {}
+        {
+            CGFloat LE_RE_width = sqrt(pow((faceFeature.leftEyePosition.x -  faceFeature.rightEyePosition.x),2) + pow((faceFeature.leftEyePosition.y -  faceFeature.rightEyePosition.y),2)) ;
+        }
         else if(faceFeature.hasRightEyePosition && faceFeature.hasMouthPosition)
-        {}
+        {
+            CGFloat RE_M_width = sqrt(pow((faceFeature.leftEyePosition.x -  faceFeature.rightEyePosition.x),2) + pow((faceFeature.leftEyePosition.y -  faceFeature.rightEyePosition.y),2)) ;
+        }
         else if(faceFeature.hasLeftEyePosition && faceFeature.hasMouthPosition)
-        {}
+        {
+            CGFloat LE_M_width = sqrt(pow((faceFeature.leftEyePosition.x -  faceFeature.mouthPosition.x),2) + pow((faceFeature.leftEyePosition.y -  faceFeature.mouthPosition.y),2)) ;
+        }
         
         
     }
 }
 
--(void)displacement_capture_reset(void)
+-(void)displacement_capture_reset
 {
     //return the measured displacement along the axis aligned with the camera relative to a start point
     //reset the start point of displacement to the current position
+    int a = 3;
 }
 
--(void)mainloop (void)
+-(void)mainloop
 {
     /*
      Continuously take readings of phone's displacement (reset if line of sight is broken)
@@ -170,11 +305,14 @@ typedef enum FeatureWidth
      
      */
     static int width_t0 ;
-    int width_t1 = getFeatureWidth();
+    
     static int d_width;
     
    
     while(1){
+        
+        //UIImageView = get_from_image();
+        //int width_t1 = getFeatureWidth(Image);
         if (width_t1 == -1) //reset case: measured width feature was reset
         {
             //wait until a feature width is obtained
