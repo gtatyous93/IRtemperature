@@ -85,8 +85,8 @@ typedef struct {
     //verbose OBjective-C syntax for inserting structs into arrays
     [_accel_FIFO enqueue:[NSValue valueWithBytes:&accel_point objCType:@encode(accel_point_t)]];
     
-    accel_point_t p;
-    [NSValue getValue:&p];
+  //  accel_point_t p;
+  //  [NSValue getValue:&p];
     
     /*
     self.accX.text = [NSString stringWithFormat:@" %.2fg",acceleration.x];
