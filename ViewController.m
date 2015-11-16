@@ -49,20 +49,6 @@
     
 }
 
-typedef struct {
-    NSTimeInterval delta;
-    int x;
-    int y;
-    int z;
-} accel_point_t;
-
-typedef struct {
-    NSTimeInterval delta;
-    int x;
-    int y;
-    int z;
-} rotation_point_t;
-
 -(void)outputAccelertionData:(CMAcceleration)acceleration
 {
     //Accelerometer callback
@@ -73,9 +59,7 @@ typedef struct {
     
     NSDate *accel_start = [[NSDate init] alloc];
     accel_point.delta = [accel_start timeIntervalSinceNow];
-    
-//    NSMutableArray *accel_FIFO = [[NSMutableArray init] alloc];
-    
+
     //should spawn a thread to do this bit
     while( [_accel_FIFO count ] >= 8)
     {
@@ -85,62 +69,32 @@ typedef struct {
     //verbose OBjective-C syntax for inserting structs into arrays
     [_accel_FIFO enqueue:[NSValue valueWithBytes:&accel_point objCType:@encode(accel_point_t)]];
     
-  //  accel_point_t p;
-  //  [NSValue getValue:&p];
-    
-    /*
-    self.accX.text = [NSString stringWithFormat:@" %.2fg",acceleration.x];
-    if(fabs(acceleration.x) > fabs(currentMaxAccelX))
-    {
-        currentMaxAccelX = acceleration.x;
-    }
-    self.accY.text = [NSString stringWithFormat:@" %.2fg",acceleration.y];
-    if(fabs(acceleration.y) > fabs(currentMaxAccelY))
-    {
-        currentMaxAccelY = acceleration.y;
-    }
-    self.accZ.text = [NSString stringWithFormat:@" %.2fg",acceleration.z];
-    if(fabs(acceleration.z) > fabs(currentMaxAccelZ))
-    {
-        currentMaxAccelZ = acceleration.z;
-    }
-    
-    self.maxAccX.text = [NSString stringWithFormat:@" %.2f",currentMaxAccelX];
-    self.maxAccY.text = [NSString stringWithFormat:@" %.2f",currentMaxAccelY];
-    self.maxAccZ.text = [NSString stringWithFormat:@" %.2f",currentMaxAccelZ];
-    */
+ //   accel_point_t p;
+ //   [NSValue getValue:&p];asdasdasd
+ 
     
 }
 -(void)outputRotationData:(CMRotationRate)rotation
 {
     //Gyroscope callback
-    rotation.x;
-    rotation.y;
-    rotation.z;
+    rotation_point_t rotation_point;
+    rotation_point.x = rotation.x;
+    rotation_point.y = rotation.y;
+    rotation_point.z = rotation.z;
     
+    NSDate *rotate_start = [[NSDate init] alloc];
+    rotation_point.delta = [rotate_start timeIntervalSinceNow];
     
-  /*
-    self.rotX.text = [NSString stringWithFormat:@" %.2fr/s",rotation.x];
-    if(fabs(rotation.x) > fabs(currentMaxRotX))
+    //should spawn a thread to do this bit
+    while( [_rotat_FIFO count ] >= 8)
     {
-        currentMaxRotX = rotation.x;
-    }
-    self.rotY.text = [NSString stringWithFormat:@" %.2fr/s",rotation.y];
-    if(fabs(rotation.y) > fabs(currentMaxRotY))
-    {
-        currentMaxRotY = rotation.y;
-    }
-    self.rotZ.text = [NSString stringWithFormat:@" %.2fr/s",rotation.z];
-    if(fabs(rotation.z) > fabs(currentMaxRotZ))
-    {
-        currentMaxRotZ = rotation.z;
+        [_rotat_FIFO dequeue] ;
     }
     
-    self.maxRotX.text = [NSString stringWithFormat:@" %.2f",currentMaxRotX];
-    self.maxRotY.text = [NSString stringWithFormat:@" %.2f",currentMaxRotY];
-    self.maxRotZ.text = [NSString stringWithFormat:@" %.2f",currentMaxRotZ];
+    //verbose OBjective-C syntax for inserting structs into arrays
+    [_rotat_FIFO enqueue:[NSValue valueWithBytes:&rotation_point objCType:@encode(rotation_point_t)]];
+    
    
-   */
 }
 - (IBAction)resetMaxValues:(id)sender {
     
