@@ -27,14 +27,6 @@
  */
 
 
-typedef enum FeatureWidth
-{
-    FW,FL, //face width and length
-    RE_LE, //right eye to left eye
-    RE_M, //right eye to mouth
-    LE_M, //left eye to mouth
-} FeatureWidth_t;
-
 
 
 -(void) setupCaptureSession
@@ -205,21 +197,38 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     
 }
 
+
+-(int)displacement_capture_reset
 {
     //return the measured displacement along the axis aligned with the camera relative to a start point
     //reset the start point of displacement to the current position
     static double previous_time; //double integrate the axial acceleration over the time bounds between successive measurements
     double current_time =[[NSDate date] timeIntervalSince1970];
 //    NSTimeInterval timeInterval = [previous_time timeIntervalSinceNow];
- 
-    double ret = current_time - previous_time;
+    double delta_inter = 0;
     
-    //Double integrate over a time indexed buffer of xyz acceleration using current_time and previous_time as bounds
+    double time_interval = current_time - previous_time;
+    while(delta_inter <= time_interval)
+    {
+        accel_point_t *p = (__bridge accel_point_t *)([[_viewController accel_FIFO] objectAtIndex:0]);
+        delta_inter += p->delta;
+        
+        //] objectAtIndex:0 ];
+        [[_viewController accel_FIFO ] dequeue];
+    }
+    
+    //remove all queued acceleration measurements
+    while( [[_viewController accel_FIFO] count ] > 0)
+    {
+        [[_viewController accel_FIFO] dequeue] ;
+    }
+    
+    //Double integrate over buffer of xyz acceleration using current_time and previous_time as bounds
     //Determine the axis along which the back-facing camera and target are aligned using gyroscope and accelerometer ("gravity" as seen by accelerometer)
     //take dot product with doubly integrated accel measure
     
     previous_time = [[NSDate date] timeIntervalSince1970];
-    return ret;
+    return 1;
 }
 
 -(CGFloat)calculate_depth:(CGFloat)delta_width withDisplacement:(CGFloat)displacement
@@ -237,12 +246,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     // Override point for customization after application launch.
     self.viewController = [[ViewController alloc] initWithNibName:@"ViewController" bundle:nil];
     self.window.rootViewController = self.viewController;
-<<<<<<< HEAD
-    [self.window makeKeyAndVisible];34
-    [self faceDetector]; // execute the faceDetector code
-=======
     [self.window makeKeyAndVisible];
->>>>>>> d38e83a8b6bfff554816e594d2751d1f8532983c
     
     return YES;
 }

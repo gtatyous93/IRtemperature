@@ -9,6 +9,22 @@ double currentMaxRotX;
 double currentMaxRotY;
 double currentMaxRotZ;
 
+
+typedef struct {
+    NSTimeInterval delta;
+    int x;
+    int y;
+    int z;
+} accel_point_t;
+
+typedef struct {
+    NSTimeInterval delta;
+    int x;
+    int y;
+    int z;
+} rotation_point_t;
+
+
 @interface ViewController : UIViewController
 
 @property (strong, atomic) NSMutableArray *accel_FIFO;
