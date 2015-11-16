@@ -148,7 +148,7 @@ typedef enum FeatureWidth
     }
 }
 
--(void)displacement_capture_reset(void)
+-(void)displacement_capture_reset(void) //looking for this@@@@@@@@
 {
     //return the measured displacement along the axis aligned with the camera relative to a start point
     //reset the start point of displacement to the current position
@@ -192,7 +192,7 @@ typedef enum FeatureWidth
     // Override point for customization after application launch.
     self.viewController = [[ViewController alloc] initWithNibName:@"ViewController" bundle:nil];
     self.window.rootViewController = self.viewController;
-    [self.window makeKeyAndVisible];
+    [self.window makeKeyAndVisible];34
     [self faceDetector]; // execute the faceDetector code
     
     return YES;
