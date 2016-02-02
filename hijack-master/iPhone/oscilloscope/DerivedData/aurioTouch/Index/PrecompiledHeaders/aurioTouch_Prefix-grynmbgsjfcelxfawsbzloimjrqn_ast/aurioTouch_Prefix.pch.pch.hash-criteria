@@ -1,0 +1,27 @@
+-x
+c
+-arch
+i386
+-fretain-comments-from-system-headers
+-std=c99
+-gmodules
+-fpascal-strings
+-O3
+-isysroot
+/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator9.2.sdk
+-fasm-blocks
+-mios-simulator-version-min=8.3
+-g
+-fvisibility=hidden
+-iquote
+-iquote
+-I/Users/ianbacus/Downloads/hijack-master/iPhone/oscilloscope/DerivedData/aurioTouch/Build/Products/Debug-iphonesimulator/include
+-F/Users/ianbacus/Downloads/hijack-master/iPhone/oscilloscope/DerivedData/aurioTouch/Build/Products/Debug-iphonesimulator
+-ferror-limit=10
+-working-directory=/Users/ianbacus/Downloads/hijack-master/iPhone/oscilloscope
+-Xclang
+-detailed-preprocessing-record
+i386-apple-darwin15.0.0
+"4.2.1 Compatible Apple LLVM 7.0.2 (clang-700.1.81)"
+SDK_PRODUCT_BUILD_VERSION=13C75
+13C75

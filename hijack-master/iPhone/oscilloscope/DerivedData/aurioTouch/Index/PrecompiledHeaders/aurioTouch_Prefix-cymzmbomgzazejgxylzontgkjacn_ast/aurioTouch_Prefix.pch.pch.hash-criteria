@@ -1,0 +1,27 @@
+-x
+objective-c
+-arch
+armv7
+-fretain-comments-from-system-headers
+-std=c99
+-gmodules
+-fpascal-strings
+-O3
+-isysroot
+/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS9.2.sdk
+-miphoneos-version-min=8.3
+-g
+-fvisibility=hidden
+-fembed-bitcode-marker
+-iquote
+-iquote
+-I/Users/ianbacus/Downloads/hijack-master/iPhone/oscilloscope/DerivedData/aurioTouch/Build/Products/Debug-iphoneos/include
+-F/Users/ianbacus/Downloads/hijack-master/iPhone/oscilloscope/DerivedData/aurioTouch/Build/Products/Debug-iphoneos
+-ferror-limit=10
+-working-directory=/Users/ianbacus/Downloads/hijack-master/iPhone/oscilloscope
+-Xclang
+-detailed-preprocessing-record
+arm-apple-darwin15.0.0
+"4.2.1 Compatible Apple LLVM 7.0.2 (clang-700.1.81)"
+SDK_PRODUCT_BUILD_VERSION=13C75
+13C75
