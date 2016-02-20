@@ -1,0 +1,680 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		2D5A725D1C778B4900B5D44D /* AudioViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D5A725C1C778B4900B5D44D /* AudioViewController.m */; };
+		2D5A725F1C778B5900B5D44D /* CoreMotionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D5A725E1C778B5900B5D44D /* CoreMotionViewController.m */; };
+		2D5A72611C778B6400B5D44D /* CameraViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D5A72601C778B6400B5D44D /* CameraViewController.m */; };
+		2D5A72641C788A9400B5D44D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2D5A72631C788A9400B5D44D /* Main.storyboard */; };
+		2D6057561C63E1BE003C3F22 /* BinaryRecognizer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2D6057551C63E1BE003C3F22 /* BinaryRecognizer.mm */; };
+		2D74CBDD1C173AE500700459 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D74CBDC1C173AE500700459 /* main.m */; };
+		2D74CBE01C173AE500700459 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D74CBDF1C173AE500700459 /* AppDelegate.m */; };
+		2D74CBE31C173AE600700459 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D74CBE21C173AE600700459 /* ViewController.m */; };
+		2D74CBE91C173AE600700459 /* TEXAS_INSTRUMENTS.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 2D74CBE71C173AE600700459 /* TEXAS_INSTRUMENTS.xcdatamodeld */; };
+		2D74CBEB1C173AE600700459 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2D74CBEA1C173AE600700459 /* Assets.xcassets */; };
+		2D74CBF91C173AE600700459 /* TEXAS_INSTRUMENTSTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D74CBF81C173AE600700459 /* TEXAS_INSTRUMENTSTests.m */; };
+		2D74CC041C173AE600700459 /* TEXAS_INSTRUMENTSUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D74CC031C173AE600700459 /* TEXAS_INSTRUMENTSUITests.m */; };
+		2D74CC121C173B5700700459 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2D74CC111C173B5700700459 /* UIKit.framework */; };
+		2D74CC141C173B5E00700459 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2D74CC131C173B5E00700459 /* CoreMotion.framework */; };
+		2D74CC161C173B6400700459 /* CoreImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2D74CC151C173B6400700459 /* CoreImage.framework */; };
+		2D74CC181C173B6A00700459 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2D74CC171C173B6A00700459 /* AVFoundation.framework */; };
+		2D74CC1B1C173BA700700459 /* queue.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D74CC191C173BA700700459 /* queue.m */; };
+		2D74CC1D1C173BE000700459 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2D74CC1C1C173BE000700459 /* Accelerate.framework */; };
+		2D74CC1F1C173BFF00700459 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2D74CC1E1C173BFF00700459 /* CoreVideo.framework */; };
+		2D74CC211C173C0700700459 /* AVKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2D74CC201C173C0700700459 /* AVKit.framework */; };
+		2D97F9301C63D14900B204A4 /* AudioController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D97F92F1C63D14900B204A4 /* AudioController.m */; };
+		2D97F9331C63D32B00B204A4 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2D97F9321C63D32B00B204A4 /* AudioToolbox.framework */; };
+		2D97F9351C63D33100B204A4 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2D97F9341C63D33100B204A4 /* CoreAudio.framework */; };
+		2DAF78FC1C5A96FC008BB151 /* AudioSignalGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 2DAF78FB1C5A96FC008BB151 /* AudioSignalGenerator.m */; };
+		2DAF79021C5A9730008BB151 /* AudioQueueObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 2DAF78FF1C5A9730008BB151 /* AudioQueueObject.m */; };
+		2DAF79031C5A9730008BB151 /* AudioSignalAnalyzer.m in Sources */ = {isa = PBXBuildFile; fileRef = 2DAF79011C5A9730008BB151 /* AudioSignalAnalyzer.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		2D74CBF51C173AE600700459 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2D74CBD01C173AE500700459 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2D74CBD71C173AE500700459;
+			remoteInfo = TEXAS_INSTRUMENTS;
+		};
+		2D74CC001C173AE600700459 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2D74CBD01C173AE500700459 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2D74CBD71C173AE500700459;
+			remoteInfo = TEXAS_INSTRUMENTS;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		2D5A72541C7788C100B5D44D /* Base */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Base; path = Base.lproj/AudioViewController.h; sourceTree = "<group>"; };
+		2D5A72561C7788FE00B5D44D /* Base */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Base; path = Base.lproj/CoreMotionViewController.h; sourceTree = "<group>"; };
+		2D5A72581C77891000B5D44D /* Base */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Base; path = Base.lproj/CameraViewController.h; sourceTree = "<group>"; };
+		2D5A725C1C778B4900B5D44D /* AudioViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AudioViewController.m; sourceTree = "<group>"; };
+		2D5A725E1C778B5900B5D44D /* CoreMotionViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CoreMotionViewController.m; sourceTree = "<group>"; };
+		2D5A72601C778B6400B5D44D /* CameraViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CameraViewController.m; sourceTree = "<group>"; };
+		2D5A72631C788A9400B5D44D /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
+		2D6057541C63DC51003C3F22 /* lockfree.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = lockfree.h; sourceTree = "<group>"; };
+		2D6057551C63E1BE003C3F22 /* BinaryRecognizer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = BinaryRecognizer.mm; sourceTree = "<group>"; };
+		2D74CBD81C173AE500700459 /* TEXAS_INSTRUMENTS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TEXAS_INSTRUMENTS.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		2D74CBDC1C173AE500700459 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		2D74CBDE1C173AE500700459 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		2D74CBDF1C173AE500700459 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		2D74CBE11C173AE600700459 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
+		2D74CBE21C173AE600700459 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		2D74CBE81C173AE600700459 /* TEXAS_INSTRUMENTS.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = TEXAS_INSTRUMENTS.xcdatamodel; sourceTree = "<group>"; };
+		2D74CBEA1C173AE600700459 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		2D74CBED1C173AE600700459 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		2D74CBEF1C173AE600700459 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		2D74CBF41C173AE600700459 /* TEXAS_INSTRUMENTSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TEXAS_INSTRUMENTSTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		2D74CBF81C173AE600700459 /* TEXAS_INSTRUMENTSTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TEXAS_INSTRUMENTSTests.m; sourceTree = "<group>"; };
+		2D74CBFA1C173AE600700459 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		2D74CBFF1C173AE600700459 /* TEXAS_INSTRUMENTSUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TEXAS_INSTRUMENTSUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		2D74CC031C173AE600700459 /* TEXAS_INSTRUMENTSUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TEXAS_INSTRUMENTSUITests.m; sourceTree = "<group>"; };
+		2D74CC051C173AE600700459 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		2D74CC111C173B5700700459 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		2D74CC131C173B5E00700459 /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
+		2D74CC151C173B6400700459 /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = System/Library/Frameworks/CoreImage.framework; sourceTree = SDKROOT; };
+		2D74CC171C173B6A00700459 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		2D74CC191C173BA700700459 /* queue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = queue.m; sourceTree = "<group>"; };
+		2D74CC1A1C173BA700700459 /* queue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = queue.h; sourceTree = "<group>"; };
+		2D74CC1C1C173BE000700459 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
+		2D74CC1E1C173BFF00700459 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
+		2D74CC201C173C0700700459 /* AVKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVKit.framework; path = System/Library/Frameworks/AVKit.framework; sourceTree = SDKROOT; };
+		2D97F92F1C63D14900B204A4 /* AudioController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AudioController.m; sourceTree = "<group>"; };
+		2D97F9311C63D17C00B204A4 /* AudioController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioController.h; sourceTree = "<group>"; };
+		2D97F9321C63D32B00B204A4 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
+		2D97F9341C63D33100B204A4 /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = System/Library/Frameworks/CoreAudio.framework; sourceTree = SDKROOT; };
+		2D97F9361C63DA7000B204A4 /* BinaryRecognizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BinaryRecognizer.h; sourceTree = "<group>"; };
+		2DAF78FA1C5A96FC008BB151 /* AudioSignalGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioSignalGenerator.h; sourceTree = "<group>"; };
+		2DAF78FB1C5A96FC008BB151 /* AudioSignalGenerator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AudioSignalGenerator.m; sourceTree = "<group>"; };
+		2DAF78FD1C5A9730008BB151 /* PatternRecognizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PatternRecognizer.h; sourceTree = "<group>"; };
+		2DAF78FE1C5A9730008BB151 /* AudioQueueObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioQueueObject.h; sourceTree = "<group>"; };
+		2DAF78FF1C5A9730008BB151 /* AudioQueueObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AudioQueueObject.m; sourceTree = "<group>"; };
+		2DAF79001C5A9730008BB151 /* AudioSignalAnalyzer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioSignalAnalyzer.h; sourceTree = "<group>"; };
+		2DAF79011C5A9730008BB151 /* AudioSignalAnalyzer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AudioSignalAnalyzer.m; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		2D74CBD51C173AE500700459 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2D97F9351C63D33100B204A4 /* CoreAudio.framework in Frameworks */,
+				2D97F9331C63D32B00B204A4 /* AudioToolbox.framework in Frameworks */,
+				2D74CC211C173C0700700459 /* AVKit.framework in Frameworks */,
+				2D74CC1F1C173BFF00700459 /* CoreVideo.framework in Frameworks */,
+				2D74CC1D1C173BE000700459 /* Accelerate.framework in Frameworks */,
+				2D74CC181C173B6A00700459 /* AVFoundation.framework in Frameworks */,
+				2D74CC161C173B6400700459 /* CoreImage.framework in Frameworks */,
+				2D74CC141C173B5E00700459 /* CoreMotion.framework in Frameworks */,
+				2D74CC121C173B5700700459 /* UIKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2D74CBF11C173AE600700459 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2D74CBFC1C173AE600700459 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		2D5A72591C778A8600B5D44D /* ViewControllers */ = {
+			isa = PBXGroup;
+			children = (
+				2D5A72531C7788C100B5D44D /* AudioViewController.h */,
+				2D5A725C1C778B4900B5D44D /* AudioViewController.m */,
+				2D5A72551C7788FE00B5D44D /* CoreMotionViewController.h */,
+				2D5A725E1C778B5900B5D44D /* CoreMotionViewController.m */,
+				2D5A72571C77891000B5D44D /* CameraViewController.h */,
+				2D5A72601C778B6400B5D44D /* CameraViewController.m */,
+				2D74CBE11C173AE600700459 /* ViewController.h */,
+				2D74CBE21C173AE600700459 /* ViewController.m */,
+				2D74CC191C173BA700700459 /* queue.m */,
+				2D74CC1A1C173BA700700459 /* queue.h */,
+			);
+			path = ViewControllers;
+			sourceTree = "<group>";
+		};
+		2D5A725B1C778A9C00B5D44D /* iPhone Hacks */ = {
+			isa = PBXGroup;
+			children = (
+				2D6057551C63E1BE003C3F22 /* BinaryRecognizer.mm */,
+				2D6057541C63DC51003C3F22 /* lockfree.h */,
+				2D97F9311C63D17C00B204A4 /* AudioController.h */,
+				2D97F92F1C63D14900B204A4 /* AudioController.m */,
+				2DAF78FD1C5A9730008BB151 /* PatternRecognizer.h */,
+				2DAF78FE1C5A9730008BB151 /* AudioQueueObject.h */,
+				2DAF78FF1C5A9730008BB151 /* AudioQueueObject.m */,
+				2DAF79001C5A9730008BB151 /* AudioSignalAnalyzer.h */,
+				2DAF79011C5A9730008BB151 /* AudioSignalAnalyzer.m */,
+				2D97F9361C63DA7000B204A4 /* BinaryRecognizer.h */,
+				2DAF78FA1C5A96FC008BB151 /* AudioSignalGenerator.h */,
+				2DAF78FB1C5A96FC008BB151 /* AudioSignalGenerator.m */,
+			);
+			name = "iPhone Hacks";
+			path = iPhoneHacks;
+			sourceTree = "<group>";
+		};
+		2D5A72621C78876700B5D44D /* Top Level */ = {
+			isa = PBXGroup;
+			children = (
+				2D74CBDE1C173AE500700459 /* AppDelegate.h */,
+				2D74CBDF1C173AE500700459 /* AppDelegate.m */,
+				2D74CBDC1C173AE500700459 /* main.m */,
+				2D5A72631C788A9400B5D44D /* Main.storyboard */,
+			);
+			name = "Top Level";
+			path = TopLevel;
+			sourceTree = "<group>";
+		};
+		2D74CBCF1C173AE500700459 = {
+			isa = PBXGroup;
+			children = (
+				2D97F9341C63D33100B204A4 /* CoreAudio.framework */,
+				2D97F9321C63D32B00B204A4 /* AudioToolbox.framework */,
+				2D74CC201C173C0700700459 /* AVKit.framework */,
+				2D74CC1E1C173BFF00700459 /* CoreVideo.framework */,
+				2D74CC1C1C173BE000700459 /* Accelerate.framework */,
+				2D74CC171C173B6A00700459 /* AVFoundation.framework */,
+				2D74CC151C173B6400700459 /* CoreImage.framework */,
+				2D74CC131C173B5E00700459 /* CoreMotion.framework */,
+				2D74CC111C173B5700700459 /* UIKit.framework */,
+				2D74CBDA1C173AE500700459 /* ECE480_project_root */,
+				2D74CBF71C173AE600700459 /* TEXAS_INSTRUMENTSTests */,
+				2D74CC021C173AE600700459 /* TEXAS_INSTRUMENTSUITests */,
+				2D74CBD91C173AE500700459 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		2D74CBD91C173AE500700459 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				2D74CBD81C173AE500700459 /* TEXAS_INSTRUMENTS.app */,
+				2D74CBF41C173AE600700459 /* TEXAS_INSTRUMENTSTests.xctest */,
+				2D74CBFF1C173AE600700459 /* TEXAS_INSTRUMENTSUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		2D74CBDA1C173AE500700459 /* ECE480_project_root */ = {
+			isa = PBXGroup;
+			children = (
+				2D5A72621C78876700B5D44D /* Top Level */,
+				2D5A725B1C778A9C00B5D44D /* iPhone Hacks */,
+				2D5A72591C778A8600B5D44D /* ViewControllers */,
+				2D74CBEA1C173AE600700459 /* Assets.xcassets */,
+				2D74CBEC1C173AE600700459 /* LaunchScreen.storyboard */,
+				2D74CBEF1C173AE600700459 /* Info.plist */,
+				2D74CBE71C173AE600700459 /* TEXAS_INSTRUMENTS.xcdatamodeld */,
+				2D74CBDB1C173AE500700459 /* Supporting Files */,
+			);
+			path = ECE480_project_root;
+			sourceTree = "<group>";
+		};
+		2D74CBDB1C173AE500700459 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		2D74CBF71C173AE600700459 /* TEXAS_INSTRUMENTSTests */ = {
+			isa = PBXGroup;
+			children = (
+				2D74CBF81C173AE600700459 /* TEXAS_INSTRUMENTSTests.m */,
+				2D74CBFA1C173AE600700459 /* Info.plist */,
+			);
+			path = TEXAS_INSTRUMENTSTests;
+			sourceTree = "<group>";
+		};
+		2D74CC021C173AE600700459 /* TEXAS_INSTRUMENTSUITests */ = {
+			isa = PBXGroup;
+			children = (
+				2D74CC031C173AE600700459 /* TEXAS_INSTRUMENTSUITests.m */,
+				2D74CC051C173AE600700459 /* Info.plist */,
+			);
+			path = TEXAS_INSTRUMENTSUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		2D74CBD71C173AE500700459 /* TEXAS_INSTRUMENTS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2D74CC081C173AE600700459 /* Build configuration list for PBXNativeTarget "TEXAS_INSTRUMENTS" */;
+			buildPhases = (
+				2D74CBD41C173AE500700459 /* Sources */,
+				2D74CBD51C173AE500700459 /* Frameworks */,
+				2D74CBD61C173AE500700459 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = TEXAS_INSTRUMENTS;
+			productName = TEXAS_INSTRUMENTS;
+			productReference = 2D74CBD81C173AE500700459 /* TEXAS_INSTRUMENTS.app */;
+			productType = "com.apple.product-type.application";
+		};
+		2D74CBF31C173AE600700459 /* TEXAS_INSTRUMENTSTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2D74CC0B1C173AE600700459 /* Build configuration list for PBXNativeTarget "TEXAS_INSTRUMENTSTests" */;
+			buildPhases = (
+				2D74CBF01C173AE600700459 /* Sources */,
+				2D74CBF11C173AE600700459 /* Frameworks */,
+				2D74CBF21C173AE600700459 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				2D74CBF61C173AE600700459 /* PBXTargetDependency */,
+			);
+			name = TEXAS_INSTRUMENTSTests;
+			productName = TEXAS_INSTRUMENTSTests;
+			productReference = 2D74CBF41C173AE600700459 /* TEXAS_INSTRUMENTSTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		2D74CBFE1C173AE600700459 /* TEXAS_INSTRUMENTSUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2D74CC0E1C173AE600700459 /* Build configuration list for PBXNativeTarget "TEXAS_INSTRUMENTSUITests" */;
+			buildPhases = (
+				2D74CBFB1C173AE600700459 /* Sources */,
+				2D74CBFC1C173AE600700459 /* Frameworks */,
+				2D74CBFD1C173AE600700459 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				2D74CC011C173AE600700459 /* PBXTargetDependency */,
+			);
+			name = TEXAS_INSTRUMENTSUITests;
+			productName = TEXAS_INSTRUMENTSUITests;
+			productReference = 2D74CBFF1C173AE600700459 /* TEXAS_INSTRUMENTSUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		2D74CBD01C173AE500700459 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0710;
+				ORGANIZATIONNAME = "Ian Bacus";
+				TargetAttributes = {
+					2D74CBD71C173AE500700459 = {
+						CreatedOnToolsVersion = 7.1.1;
+						DevelopmentTeam = ZY863HM3S7;
+					};
+					2D74CBF31C173AE600700459 = {
+						CreatedOnToolsVersion = 7.1.1;
+						DevelopmentTeam = ZY863HM3S7;
+						TestTargetID = 2D74CBD71C173AE500700459;
+					};
+					2D74CBFE1C173AE600700459 = {
+						CreatedOnToolsVersion = 7.1.1;
+						DevelopmentTeam = ZY863HM3S7;
+						TestTargetID = 2D74CBD71C173AE500700459;
+					};
+				};
+			};
+			buildConfigurationList = 2D74CBD31C173AE500700459 /* Build configuration list for PBXProject "TEXAS_INSTRUMENTS" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 2D74CBCF1C173AE500700459;
+			productRefGroup = 2D74CBD91C173AE500700459 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				2D74CBD71C173AE500700459 /* TEXAS_INSTRUMENTS */,
+				2D74CBF31C173AE600700459 /* TEXAS_INSTRUMENTSTests */,
+				2D74CBFE1C173AE600700459 /* TEXAS_INSTRUMENTSUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		2D74CBD61C173AE500700459 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2D5A72641C788A9400B5D44D /* Main.storyboard in Resources */,
+				2D74CBEB1C173AE600700459 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2D74CBF21C173AE600700459 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2D74CBFD1C173AE600700459 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		2D74CBD41C173AE500700459 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2D74CBE31C173AE600700459 /* ViewController.m in Sources */,
+				2D74CBE01C173AE500700459 /* AppDelegate.m in Sources */,
+				2D74CC1B1C173BA700700459 /* queue.m in Sources */,
+				2D97F9301C63D14900B204A4 /* AudioController.m in Sources */,
+				2DAF79021C5A9730008BB151 /* AudioQueueObject.m in Sources */,
+				2D74CBE91C173AE600700459 /* TEXAS_INSTRUMENTS.xcdatamodeld in Sources */,
+				2D6057561C63E1BE003C3F22 /* BinaryRecognizer.mm in Sources */,
+				2DAF78FC1C5A96FC008BB151 /* AudioSignalGenerator.m in Sources */,
+				2DAF79031C5A9730008BB151 /* AudioSignalAnalyzer.m in Sources */,
+				2D5A72611C778B6400B5D44D /* CameraViewController.m in Sources */,
+				2D5A725D1C778B4900B5D44D /* AudioViewController.m in Sources */,
+				2D74CBDD1C173AE500700459 /* main.m in Sources */,
+				2D5A725F1C778B5900B5D44D /* CoreMotionViewController.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2D74CBF01C173AE600700459 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2D74CBF91C173AE600700459 /* TEXAS_INSTRUMENTSTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2D74CBFB1C173AE600700459 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2D74CC041C173AE600700459 /* TEXAS_INSTRUMENTSUITests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		2D74CBF61C173AE600700459 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2D74CBD71C173AE500700459 /* TEXAS_INSTRUMENTS */;
+			targetProxy = 2D74CBF51C173AE600700459 /* PBXContainerItemProxy */;
+		};
+		2D74CC011C173AE600700459 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2D74CBD71C173AE500700459 /* TEXAS_INSTRUMENTS */;
+			targetProxy = 2D74CC001C173AE600700459 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		2D5A72531C7788C100B5D44D /* AudioViewController.h */ = {
+			isa = PBXVariantGroup;
+			children = (
+				2D5A72541C7788C100B5D44D /* Base */,
+			);
+			name = AudioViewController.h;
+			sourceTree = "<group>";
+		};
+		2D5A72551C7788FE00B5D44D /* CoreMotionViewController.h */ = {
+			isa = PBXVariantGroup;
+			children = (
+				2D5A72561C7788FE00B5D44D /* Base */,
+			);
+			name = CoreMotionViewController.h;
+			sourceTree = "<group>";
+		};
+		2D5A72571C77891000B5D44D /* CameraViewController.h */ = {
+			isa = PBXVariantGroup;
+			children = (
+				2D5A72581C77891000B5D44D /* Base */,
+			);
+			name = CameraViewController.h;
+			sourceTree = "<group>";
+		};
+		2D74CBEC1C173AE600700459 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				2D74CBED1C173AE600700459 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		2D74CC061C173AE600700459 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		2D74CC071C173AE600700459 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		2D74CC091C173AE600700459 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = ECE480_project_root/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = ianbacusdev.com.depthfeatures;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		2D74CC0A1C173AE600700459 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = ECE480_project_root/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = ianbacusdev.com.depthfeatures;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		2D74CC0C1C173AE600700459 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				INFOPLIST_FILE = TEXAS_INSTRUMENTSTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "a.TEXAS-INSTRUMENTSTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TEXAS_INSTRUMENTS.app/TEXAS_INSTRUMENTS";
+			};
+			name = Debug;
+		};
+		2D74CC0D1C173AE600700459 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				INFOPLIST_FILE = TEXAS_INSTRUMENTSTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "a.TEXAS-INSTRUMENTSTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TEXAS_INSTRUMENTS.app/TEXAS_INSTRUMENTS";
+			};
+			name = Release;
+		};
+		2D74CC0F1C173AE600700459 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = TEXAS_INSTRUMENTSUITests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "a.TEXAS-INSTRUMENTSUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_TARGET_NAME = TEXAS_INSTRUMENTS;
+				USES_XCTRUNNER = YES;
+			};
+			name = Debug;
+		};
+		2D74CC101C173AE600700459 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = TEXAS_INSTRUMENTSUITests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "a.TEXAS-INSTRUMENTSUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_TARGET_NAME = TEXAS_INSTRUMENTS;
+				USES_XCTRUNNER = YES;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		2D74CBD31C173AE500700459 /* Build configuration list for PBXProject "TEXAS_INSTRUMENTS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2D74CC061C173AE600700459 /* Debug */,
+				2D74CC071C173AE600700459 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2D74CC081C173AE600700459 /* Build configuration list for PBXNativeTarget "TEXAS_INSTRUMENTS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2D74CC091C173AE600700459 /* Debug */,
+				2D74CC0A1C173AE600700459 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2D74CC0B1C173AE600700459 /* Build configuration list for PBXNativeTarget "TEXAS_INSTRUMENTSTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2D74CC0C1C173AE600700459 /* Debug */,
+				2D74CC0D1C173AE600700459 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2D74CC0E1C173AE600700459 /* Build configuration list for PBXNativeTarget "TEXAS_INSTRUMENTSUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2D74CC0F1C173AE600700459 /* Debug */,
+				2D74CC101C173AE600700459 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		2D74CBE71C173AE600700459 /* TEXAS_INSTRUMENTS.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				2D74CBE81C173AE600700459 /* TEXAS_INSTRUMENTS.xcdatamodel */,
+			);
+			currentVersion = 2D74CBE81C173AE600700459 /* TEXAS_INSTRUMENTS.xcdatamodel */;
+			path = TEXAS_INSTRUMENTS.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
+	};
+	rootObject = 2D74CBD01C173AE500700459 /* Project object */;
+}
