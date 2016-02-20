@@ -10,11 +10,16 @@
 #import "AudioQueueObject.h"
 #import "AudioSignalGenerator.h"
 
+typedef void (*AudioQueueOutputCallback)(
+void * __nullable       inUserData,
+AudioQueueRef           inAQ,
+AudioQueueBufferRef     inBuffer);
+
 
 static void playbackCallback (
 							  void					*inUserData,
-							  AudioQueueRef			inAudioQueue,
-							  AudioQueueBufferRef	bufferReference
+							  AudioQueueRef			inAQ,
+							  AudioQueueBufferRef	inBuffer
 ) {
 	// This is not a Cocoa thread, it needs a manually allocated pool
 //    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
@@ -22,14 +27,14 @@ static void playbackCallback (
 	// This callback, being outside the implementation block, needs a reference to the AudioSignalGenerator object
 	AudioSignalGenerator *player = (__bridge AudioSignalGenerator *) inUserData;
 	if ([player stopped]) return;
+    if (!inBuffer) return;
+	[player fillBuffer:inBuffer->mAudioData];
 	
-	[player fillBuffer:bufferReference->mAudioData];
-	
-	bufferReference->mAudioDataByteSize = player.bufferByteSize;		
+	inBuffer->mAudioDataByteSize = player.bufferByteSize;
 
 	AudioQueueEnqueueBuffer (
-								 inAudioQueue,
-								 bufferReference,
+								 inAQ,
+								 inBuffer,
 								 player.bufferPacketCount,
 								 player.packetDescriptions
 								 );		
@@ -71,16 +76,15 @@ static void playbackCallback (
 - (void) setupPlaybackAudioQueueObject {
 	
 	// create the playback audio queue object
-	AudioQueueNewOutput (
-						 &audioFormat,
-						 playbackCallback,
-						 (__bridge void * _Nullable)(self),
-						 CFRunLoopGetCurrent (),
-						 kCFRunLoopCommonModes,
-						 0,								// run loop flags
-						 &queueObject
+	AudioQueueNewOutput (&audioFormat,                  //input format
+						 playbackCallback,              //callback process
+						 (__bridge void * _Nullable)(self), //in user
+						 CFRunLoopGetCurrent (),        //callback run loop
+						 kCFRunLoopCommonModes,         //callback runloop mode
+						 0,								//flags
+						 &queueObject                   //output AQ
 						 );
-	
+    
 	AudioQueueSetParameter (
 							queueObject,
 							kAudioQueueParam_Volume,
@@ -95,6 +99,7 @@ static void playbackCallback (
 	// allocate and enqueue buffers				
 	int bufferIndex;
 	
+    //Allocate 3 buffers of specified length for the queueObject
 	for (bufferIndex = 0; bufferIndex < 3; ++bufferIndex) {
 		
 		AudioQueueAllocateBuffer (

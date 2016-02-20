@@ -20,6 +20,7 @@
 @synthesize previewLayer = _previewLayer;
 @synthesize cameraPreviewView = _cameraPreviewView;
 @synthesize widths = _widths;
+
 @synthesize dist_LE_RE = _dist_LE_RE;
 @synthesize dist_LE_M = _dist_LE_M;
 @synthesize dist_RE_M = _dist_RE_M;
@@ -27,38 +28,162 @@
 @synthesize face_bool = _face_bool;
 
 
-- (void) ConfigCamera
+
+//This is the callback for the video buffer queue
+//Compliant with protocol set in the SetupCaptureSession function when the queue is configured
+
+- (void)captureOutput:(AVCaptureOutput *)captureOutput
+didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
+       fromConnection:(AVCaptureConnection *)connection
 {
-    //Duplicate of code in the AppDelegate
+    NSLog(@"captureOutput: didOutputSampleBufferFromConnection");
+    //NSNumber* zero = 0;
+    // Create a UIImage from the sample buffer data
+    CIImage *image = [self imageFromSampleBuffer:sampleBuffer];
     
-    //-- Setup Capture Session.
-    _captureSession = [[AVCaptureSession alloc] init];
+    //TODO: fix this code, it is buggy right now
+    if([self getFeatureWidth:image]) _face_bool.text = @"Face detected";
     
-    //-- Creata a video device and input from that Device.  Add the input to the capture session.
-    AVCaptureDevice * videoDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
-    if(videoDevice == nil) assert(0);
+    _face_bool.text = @"No face";
     
-    //-- Add the device to the session.
-    NSError *error;
-    AVCaptureDeviceInput *input = [AVCaptureDeviceInput deviceInputWithDevice:videoDevice error:&error];
-    if(error) assert(0);
+    //_axial_displacement = [self displacement_capture_reset]; //positive: closer, negative: farther
+    //_delta_width = [[_widths objectAtIndex:0] floatValue] - [[_previous_widths objectAtIndex:0] floatValue];
+    //_depth = [self calculate_depth:_delta_width withDisplacement:_axial_displacement];
     
-    [_captureSession addInput:input];
-    
-    //-- Configure the preview layer
-    _previewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:_captureSession];
-    _previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
-    [_previewLayer setFrame:CGRectMake(0, 0, _cameraPreviewView.frame.size.width, _cameraPreviewView.frame.size.height)];
-    
-    //-- Add the layer to the view that should display the camera input
-    [self.cameraPreviewView.layer addSublayer:_previewLayer];
-    
-    //-- Start the camera
-    [_captureSession startRunning];
-    
+    _dist_LE_RE.text = [NSString stringWithFormat:@" %.2f",[[_widths objectAtIndex:0] doubleValue]];
+    _dist_LE_M.text =  [NSString stringWithFormat:@" %.2f",[[_widths objectAtIndex:1] doubleValue]];
+    _dist_RE_M.text =  [NSString stringWithFormat:@" %.2f",[[_widths objectAtIndex:2] doubleValue]];
+    _dist_face.text =  [NSString stringWithFormat:@" %.2f",[[_widths objectAtIndex:3] doubleValue]];
+    /*
+     
+     //Update previous_widths
+     for (NSNumber* width_reading in _widths) //iterate through LE_RE, RE_M, LE_M, facewidth
+     {
+     if ([width_reading compare:zero]) //reset case: measured width feature was reset
+     {
+     //reset state information about previous reading
+     
+     [_previous_widths replaceObjectAtIndex:[_widths indexOfObject:width_reading]withObject:zero];
+     
+     }
+     else
+     {
+     
+     //previous_widths should have the same size as
+     
+     //determine the difference in width for this feature from the previous capture
+     NSNumber *new_num = [NSNumber numberWithFloat:
+     [width_reading floatValue] -
+     [[ _previous_widths objectAtIndex:[_widths indexOfObject:width_reading] ] floatValue] ];
+     
+     [_previous_widths replaceObjectAtIndex:[_widths indexOfObject:width_reading]withObject:new_num];
+     }
+     
+     }
+     */
     
 }
 
+
+// Create a UIImage from sample buffer data
+- (CIImage *) imageFromSampleBuffer:(CMSampleBufferRef) sampleBuffer
+{
+    NSLog(@"imageFromSampleBuffer: called");
+    // Get a CMSampleBuffer's Core Video image buffer for the media data
+    CVImageBufferRef imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
+    // Lock the base address of the pixel buffer
+    CVPixelBufferLockBaseAddress(imageBuffer, 0);
+    
+    // Get the number of bytes per row for the pixel buffer
+    void *baseAddress = CVPixelBufferGetBaseAddress(imageBuffer);
+    
+    // Get the number of bytes per row for the pixel buffer
+    size_t bytesPerRow = CVPixelBufferGetBytesPerRow(imageBuffer);
+    // Get the pixel buffer width and height
+    size_t width = CVPixelBufferGetWidth(imageBuffer);
+    size_t height = CVPixelBufferGetHeight(imageBuffer);
+    
+    // Create a device-dependent RGB color space
+    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+    
+    // Create a bitmap graphics context with the sample buffer data
+    CGContextRef context = CGBitmapContextCreate(baseAddress, width, height, 8,
+                                                 bytesPerRow, colorSpace, kCGBitmapByteOrder32Little | kCGImageAlphaPremultipliedFirst);
+    // Create a Quartz image from the pixel data in the bitmap graphics context
+    CGImageRef quartzImage = CGBitmapContextCreateImage(context);
+    // Unlock the pixel buffer
+    CVPixelBufferUnlockBaseAddress(imageBuffer,0);
+    
+    
+    // Free up the context and color space
+    CGContextRelease(context);
+    CGColorSpaceRelease(colorSpace);
+    
+    // Create an image object from the Quartz image
+    CIImage *image = [CIImage imageWithCGImage:quartzImage];
+    
+    // Release the Quartz image
+    CGImageRelease(quartzImage);
+    
+    return (image);
+}
+
+-(BOOL) getFeatureWidth:(CIImage *)frame_sample
+{
+    //Perform image analysis on a still image. This is used in conjunction with the video frame buffer handler (captureOutput)
+    //CIImage* image = [CIImage imageWithCGImage:facePicture.image.CGImage]; //extract frames from video?
+
+    CIImage * image = frame_sample;// = [frame_sample CIImage];
+    
+    
+    CIDetector* detector = [CIDetector detectorOfType:CIDetectorTypeFace
+                                              context:nil options:[NSDictionary dictionaryWithObject:CIDetectorAccuracyHigh forKey:CIDetectorAccuracy]];
+    NSArray* features = [detector featuresInImage:image];
+    ////
+    _IBdepth.text = [NSString stringWithFormat:@" %@",_IBdepth];
+   
+    if(!features) return false;
+    //Clear array (for synchronization purposes.. see main loop logic)
+    for (NSUInteger i = 0; i < [_widths count]; ++i) {
+        NSNumber * zero = [_widths objectAtIndex:i];
+        zero = [NSNumber numberWithFloat: 0.0];
+        [_widths replaceObjectAtIndex:i withObject:zero];
+    }
+    // FeatureWidth_t current_feature;
+    for(CIFaceFeature* faceFeature in features)
+    {
+        // get the width of feature pairs on the face
+        
+        if(faceFeature.hasLeftEyePosition && faceFeature.hasRightEyePosition)
+        {
+            [_widths replaceObjectAtIndex:0 withObject:[NSNumber numberWithFloat:sqrt(pow((faceFeature.leftEyePosition.x -  faceFeature.rightEyePosition.x),2) + pow((faceFeature.leftEyePosition.y -  faceFeature.rightEyePosition.y),2))]];
+            //_widths[0] = [NSNumber numberWithFloat:sqrt(pow((faceFeature.leftEyePosition.x -  faceFeature.rightEyePosition.x),2) + pow((faceFeature.leftEyePosition.y -  faceFeature.rightEyePosition.y),2))];
+            NSLog(@"captureOutput: didOutputSampleBufferFromConnection");
+        }
+        if(faceFeature.hasRightEyePosition && faceFeature.hasMouthPosition)
+        {
+            [_widths replaceObjectAtIndex:1 withObject:[NSNumber numberWithFloat:sqrt(pow((faceFeature.leftEyePosition.x -  faceFeature.rightEyePosition.x),2) + pow((faceFeature.leftEyePosition.y -  faceFeature.rightEyePosition.y),2)) ]];
+            //_widths[1] = [NSNumber numberWithFloat:sqrt(pow((faceFeature.leftEyePosition.x -  faceFeature.rightEyePosition.x),2) + pow((faceFeature.leftEyePosition.y -  faceFeature.rightEyePosition.y),2)) ];
+            NSLog(@"captureOutput: didOutputSampleBufferFromConnection");
+        }
+        if(faceFeature.hasLeftEyePosition && faceFeature.hasMouthPosition)
+        {
+            [_widths replaceObjectAtIndex:2 withObject:[NSNumber numberWithFloat:sqrt(pow((faceFeature.leftEyePosition.x -  faceFeature.mouthPosition.x),2) + pow((faceFeature.leftEyePosition.y -  faceFeature.mouthPosition.y),2)) ]];
+            //_widths[2] = [NSNumber numberWithFloat:sqrt(pow((faceFeature.leftEyePosition.x -  faceFeature.mouthPosition.x),2) + pow((faceFeature.leftEyePosition.y -  faceFeature.mouthPosition.y),2)) ];
+            NSLog(@"captureOutput: didOutputSampleBufferFromConnection");
+        }
+        [_widths replaceObjectAtIndex:3 withObject:[NSNumber numberWithFloat:faceFeature.bounds.size.width]];
+        //_widths[3] = [NSNumber numberWithFloat:faceFeature.bounds.size.width];
+        
+        
+    }
+    
+    
+    return true;
+    
+    
+    
+}
 
 -(void) setupCaptureSession
 {
@@ -114,153 +239,34 @@
     if (![_captureSession isRunning]) [_captureSession startRunning];
 }
 
-
-
-// Create a UIImage from sample buffer data
-- (CIImage *) imageFromSampleBuffer:(CMSampleBufferRef) sampleBuffer
+- (void) ConfigCamera
 {
-    NSLog(@"imageFromSampleBuffer: called");
-    // Get a CMSampleBuffer's Core Video image buffer for the media data
-    CVImageBufferRef imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
-    // Lock the base address of the pixel buffer
-    CVPixelBufferLockBaseAddress(imageBuffer, 0);
+    //Duplicate of code in the AppDelegate
     
-    // Get the number of bytes per row for the pixel buffer
-    void *baseAddress = CVPixelBufferGetBaseAddress(imageBuffer);
+    //-- Setup Capture Session.
+    _captureSession = [[AVCaptureSession alloc] init];
     
-    // Get the number of bytes per row for the pixel buffer
-    size_t bytesPerRow = CVPixelBufferGetBytesPerRow(imageBuffer);
-    // Get the pixel buffer width and height
-    size_t width = CVPixelBufferGetWidth(imageBuffer);
-    size_t height = CVPixelBufferGetHeight(imageBuffer);
+    //-- Creata a video device and input from that Device.  Add the input to the capture session.
+    AVCaptureDevice * videoDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
+    if(videoDevice == nil) assert(0);
     
-    // Create a device-dependent RGB color space
-    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+    //-- Add the device to the session.
+    NSError *error;
+    AVCaptureDeviceInput *input = [AVCaptureDeviceInput deviceInputWithDevice:videoDevice error:&error];
+    if(error) assert(0);
     
-    // Create a bitmap graphics context with the sample buffer data
-    CGContextRef context = CGBitmapContextCreate(baseAddress, width, height, 8,
-                                                 bytesPerRow, colorSpace, kCGBitmapByteOrder32Little | kCGImageAlphaPremultipliedFirst);
-    // Create a Quartz image from the pixel data in the bitmap graphics context
-    CGImageRef quartzImage = CGBitmapContextCreateImage(context);
-    // Unlock the pixel buffer
-    CVPixelBufferUnlockBaseAddress(imageBuffer,0);
+    [_captureSession addInput:input];
     
+    //-- Configure the preview layer
+    _previewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:_captureSession];
+    _previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
+    [_previewLayer setFrame:CGRectMake(0, 0, _cameraPreviewView.frame.size.width, _cameraPreviewView.frame.size.height)];
     
-    // Free up the context and color space
-    CGContextRelease(context);
-    CGColorSpaceRelease(colorSpace);
+    //-- Add the layer to the view that should display the camera input
+    [self.cameraPreviewView.layer addSublayer:_previewLayer];
     
-    // Create an image object from the Quartz image
-    CIImage *image = [CIImage imageWithCGImage:quartzImage];
-    
-    // Release the Quartz image
-    CGImageRelease(quartzImage);
-    
-    return (image);
-}
-
-
-//This is the callback for the video buffer queue
-//Compliant with protocol set in the SetupCaptureSession function when the queue is configured
-- (void)captureOutput:(AVCaptureOutput *)captureOutput
-didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
-       fromConnection:(AVCaptureConnection *)connection
-{
-    NSLog(@"captureOutput: didOutputSampleBufferFromConnection");
-    NSNumber* zero = 0;
-    // Create a UIImage from the sample buffer data
-    CIImage *image = [self imageFromSampleBuffer:sampleBuffer];
-    
-     //TODO: fix this code, it is buggy right now
-    if([self getFeatureWidth:image]) self.face_bool.text = @"Face detected";
-    else self.face_bool.text = @"No face";
-     
-     //_axial_displacement = [self displacement_capture_reset]; //positive: closer, negative: farther
-     //_delta_width = [[_widths objectAtIndex:0] floatValue] - [[_previous_widths objectAtIndex:0] floatValue];
-     //_depth = [self calculate_depth:_delta_width withDisplacement:_axial_displacement];
-     _IBdepth.text = [NSString stringWithFormat:@" %@",_IBdepth];
-    self.dist_LE_RE.text =[NSString stringWithFormat:@" %@",[[_widths objectAtIndex:0] stringValue]];
-    self.dist_LE_M.text = [NSString stringWithFormat:@" %.2f",[[_widths objectAtIndex:1] doubleValue]];
-    self.dist_RE_M.text = [NSString stringWithFormat:@" %.2f",[[_widths objectAtIndex:2] doubleValue]];
-    self.dist_face.text = [NSString stringWithFormat:@" %.2f",[[_widths objectAtIndex:3] doubleValue]];
-    
-    /*
-     
-     //Update previous_widths
-     for (NSNumber* width_reading in _widths) //iterate through LE_RE, RE_M, LE_M, facewidth
-     {
-     if ([width_reading compare:zero]) //reset case: measured width feature was reset
-     {
-     //reset state information about previous reading
-     
-     [_previous_widths replaceObjectAtIndex:[_widths indexOfObject:width_reading]withObject:zero];
-     
-     }
-     else
-     {
-     
-     //previous_widths should have the same size as
-     
-     //determine the difference in width for this feature from the previous capture
-     NSNumber *new_num = [NSNumber numberWithFloat:
-     [width_reading floatValue] -
-     [[ _previous_widths objectAtIndex:[_widths indexOfObject:width_reading] ] floatValue] ];
-     
-     [_previous_widths replaceObjectAtIndex:[_widths indexOfObject:width_reading]withObject:new_num];
-     }
-     
-     }
-     */
-    
-}
-
--(BOOL) getFeatureWidth:(CIImage *)frame_sample
-{
-    //Perform image analysis on a still image. This is used in conjunction with the video frame buffer handler (captureOutput)
-    //CIImage* image = [CIImage imageWithCGImage:facePicture.image.CGImage]; //extract frames from video?
-    CIImage * image = frame_sample;// = [frame_sample CIImage];
-    
-    
-    CIDetector* detector = [CIDetector detectorOfType:CIDetectorTypeFace
-                                              context:nil options:[NSDictionary dictionaryWithObject:CIDetectorAccuracyHigh forKey:CIDetectorAccuracy]];
-    NSArray* features = [detector featuresInImage:image];
-    ////
-    if(!features) return false;
-    //Clear array (for synchronization purposes.. see main loop logic)
-    for (NSUInteger i = 0; i < [_widths count]; ++i) {
-        NSNumber * zero = [_widths objectAtIndex:i];
-        zero = [NSNumber numberWithFloat: 0.0];
-        [_widths replaceObjectAtIndex:i withObject:zero];
-    }
-    // FeatureWidth_t current_feature;
-    for(CIFaceFeature* faceFeature in features)
-    {
-        // get the width of feature pairs on the face
-        
-        if(faceFeature.hasLeftEyePosition && faceFeature.hasRightEyePosition)
-        {
-            [_widths replaceObjectAtIndex:0 withObject:[NSNumber numberWithFloat:sqrt(pow((faceFeature.leftEyePosition.x -  faceFeature.rightEyePosition.x),2) + pow((faceFeature.leftEyePosition.y -  faceFeature.rightEyePosition.y),2))]];
-            //_widths[0] = [NSNumber numberWithFloat:sqrt(pow((faceFeature.leftEyePosition.x -  faceFeature.rightEyePosition.x),2) + pow((faceFeature.leftEyePosition.y -  faceFeature.rightEyePosition.y),2))];
-            NSLog(@"captureOutput: didOutputSampleBufferFromConnection");
-        }
-        if(faceFeature.hasRightEyePosition && faceFeature.hasMouthPosition)
-        {
-            [_widths replaceObjectAtIndex:1 withObject:[NSNumber numberWithFloat:sqrt(pow((faceFeature.leftEyePosition.x -  faceFeature.rightEyePosition.x),2) + pow((faceFeature.leftEyePosition.y -  faceFeature.rightEyePosition.y),2)) ]];
-            //_widths[1] = [NSNumber numberWithFloat:sqrt(pow((faceFeature.leftEyePosition.x -  faceFeature.rightEyePosition.x),2) + pow((faceFeature.leftEyePosition.y -  faceFeature.rightEyePosition.y),2)) ];
-            NSLog(@"captureOutput: didOutputSampleBufferFromConnection");
-        }
-        if(faceFeature.hasLeftEyePosition && faceFeature.hasMouthPosition)
-        {
-            [_widths replaceObjectAtIndex:2 withObject:[NSNumber numberWithFloat:sqrt(pow((faceFeature.leftEyePosition.x -  faceFeature.mouthPosition.x),2) + pow((faceFeature.leftEyePosition.y -  faceFeature.mouthPosition.y),2)) ]];
-            //_widths[2] = [NSNumber numberWithFloat:sqrt(pow((faceFeature.leftEyePosition.x -  faceFeature.mouthPosition.x),2) + pow((faceFeature.leftEyePosition.y -  faceFeature.mouthPosition.y),2)) ];
-            NSLog(@"captureOutput: didOutputSampleBufferFromConnection");
-        }
-        [_widths replaceObjectAtIndex:3 withObject:[NSNumber numberWithFloat:faceFeature.bounds.size.width]];
-        //_widths[3] = [NSNumber numberWithFloat:faceFeature.bounds.size.width];
-        
-    }
-    return true;
-    
+    //-- Start the camera
+    [_captureSession startRunning];
     
     
 }
@@ -286,7 +292,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     _widths = [NSMutableArray arrayWithCapacity:4];
     while([_widths count] < 4)
     {
-        [_widths addObject:[NSNumber numberWithFloat: 0.0]];
+        [_widths addObject:[NSNumber numberWithFloat: 1.0]];
     }
     [self setupCaptureSession ];
     

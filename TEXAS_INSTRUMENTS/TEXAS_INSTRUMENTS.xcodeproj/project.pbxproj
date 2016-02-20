@@ -27,6 +27,9 @@
 		2D74CC1D1C173BE000700459 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2D74CC1C1C173BE000700459 /* Accelerate.framework */; };
 		2D74CC1F1C173BFF00700459 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2D74CC1E1C173BFF00700459 /* CoreVideo.framework */; };
 		2D74CC211C173C0700700459 /* AVKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2D74CC201C173C0700700459 /* AVKit.framework */; };
+		2D87EF291C78A0A50049C028 /* audio_pic.png in Resources */ = {isa = PBXBuildFile; fileRef = 2D87EF261C78A0A50049C028 /* audio_pic.png */; };
+		2D87EF2A1C78A0A50049C028 /* camera.png in Resources */ = {isa = PBXBuildFile; fileRef = 2D87EF271C78A0A50049C028 /* camera.png */; };
+		2D87EF2B1C78A0A50049C028 /* motion.png in Resources */ = {isa = PBXBuildFile; fileRef = 2D87EF281C78A0A50049C028 /* motion.png */; };
 		2D97F9301C63D14900B204A4 /* AudioController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D97F92F1C63D14900B204A4 /* AudioController.m */; };
 		2D97F9331C63D32B00B204A4 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2D97F9321C63D32B00B204A4 /* AudioToolbox.framework */; };
 		2D97F9351C63D33100B204A4 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2D97F9341C63D33100B204A4 /* CoreAudio.framework */; };
@@ -53,9 +56,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		2D5A72541C7788C100B5D44D /* Base */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Base; path = Base.lproj/AudioViewController.h; sourceTree = "<group>"; };
-		2D5A72561C7788FE00B5D44D /* Base */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Base; path = Base.lproj/CoreMotionViewController.h; sourceTree = "<group>"; };
-		2D5A72581C77891000B5D44D /* Base */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Base; path = Base.lproj/CameraViewController.h; sourceTree = "<group>"; };
 		2D5A725C1C778B4900B5D44D /* AudioViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AudioViewController.m; sourceTree = "<group>"; };
 		2D5A725E1C778B5900B5D44D /* CoreMotionViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CoreMotionViewController.m; sourceTree = "<group>"; };
 		2D5A72601C778B6400B5D44D /* CameraViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CameraViewController.m; sourceTree = "<group>"; };
@@ -87,6 +87,12 @@
 		2D74CC1C1C173BE000700459 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		2D74CC1E1C173BFF00700459 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
 		2D74CC201C173C0700700459 /* AVKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVKit.framework; path = System/Library/Frameworks/AVKit.framework; sourceTree = SDKROOT; };
+		2D87EF231C789C280049C028 /* CameraViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CameraViewController.h; sourceTree = "<group>"; };
+		2D87EF241C789C330049C028 /* CoreMotionViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoreMotionViewController.h; sourceTree = "<group>"; };
+		2D87EF251C789C440049C028 /* AudioViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioViewController.h; sourceTree = "<group>"; };
+		2D87EF261C78A0A50049C028 /* audio_pic.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = audio_pic.png; sourceTree = "<group>"; };
+		2D87EF271C78A0A50049C028 /* camera.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = camera.png; sourceTree = "<group>"; };
+		2D87EF281C78A0A50049C028 /* motion.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = motion.png; sourceTree = "<group>"; };
 		2D97F92F1C63D14900B204A4 /* AudioController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AudioController.m; sourceTree = "<group>"; };
 		2D97F9311C63D17C00B204A4 /* AudioController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioController.h; sourceTree = "<group>"; };
 		2D97F9321C63D32B00B204A4 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
@@ -138,11 +144,14 @@
 		2D5A72591C778A8600B5D44D /* ViewControllers */ = {
 			isa = PBXGroup;
 			children = (
-				2D5A72531C7788C100B5D44D /* AudioViewController.h */,
+				2D87EF261C78A0A50049C028 /* audio_pic.png */,
+				2D87EF271C78A0A50049C028 /* camera.png */,
+				2D87EF281C78A0A50049C028 /* motion.png */,
+				2D87EF251C789C440049C028 /* AudioViewController.h */,
 				2D5A725C1C778B4900B5D44D /* AudioViewController.m */,
-				2D5A72551C7788FE00B5D44D /* CoreMotionViewController.h */,
+				2D87EF241C789C330049C028 /* CoreMotionViewController.h */,
 				2D5A725E1C778B5900B5D44D /* CoreMotionViewController.m */,
-				2D5A72571C77891000B5D44D /* CameraViewController.h */,
+				2D87EF231C789C280049C028 /* CameraViewController.h */,
 				2D5A72601C778B6400B5D44D /* CameraViewController.m */,
 				2D74CBE11C173AE600700459 /* ViewController.h */,
 				2D74CBE21C173AE600700459 /* ViewController.m */,
@@ -359,7 +368,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2D87EF291C78A0A50049C028 /* audio_pic.png in Resources */,
+				2D87EF2B1C78A0A50049C028 /* motion.png in Resources */,
 				2D5A72641C788A9400B5D44D /* Main.storyboard in Resources */,
+				2D87EF2A1C78A0A50049C028 /* camera.png in Resources */,
 				2D74CBEB1C173AE600700459 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -433,30 +445,6 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		2D5A72531C7788C100B5D44D /* AudioViewController.h */ = {
-			isa = PBXVariantGroup;
-			children = (
-				2D5A72541C7788C100B5D44D /* Base */,
-			);
-			name = AudioViewController.h;
-			sourceTree = "<group>";
-		};
-		2D5A72551C7788FE00B5D44D /* CoreMotionViewController.h */ = {
-			isa = PBXVariantGroup;
-			children = (
-				2D5A72561C7788FE00B5D44D /* Base */,
-			);
-			name = CoreMotionViewController.h;
-			sourceTree = "<group>";
-		};
-		2D5A72571C77891000B5D44D /* CameraViewController.h */ = {
-			isa = PBXVariantGroup;
-			children = (
-				2D5A72581C77891000B5D44D /* Base */,
-			);
-			name = CameraViewController.h;
-			sourceTree = "<group>";
-		};
 		2D74CBEC1C173AE600700459 /* LaunchScreen.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (

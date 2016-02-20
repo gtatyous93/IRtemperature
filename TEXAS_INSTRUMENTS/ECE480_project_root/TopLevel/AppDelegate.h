@@ -39,12 +39,5 @@ classes
 
 @property AVCaptureSession* captureSession;
 
-@property (nonatomic) AudioSignalGenerator *generator;
-@property (nonatomic) AudioSignalAnalyzer* analyzer;
-@property (nonatomic) BinaryRecognizer* recognizer;
 
-
-@end
-
-@interface AppDelegate() <AVCaptureVideoDataOutputSampleBufferDelegate>;
 @end

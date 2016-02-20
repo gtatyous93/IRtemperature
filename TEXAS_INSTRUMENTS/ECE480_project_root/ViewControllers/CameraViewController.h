@@ -29,5 +29,19 @@
 @property (strong, nonatomic) IBOutlet UILabel *face_bool;
 
 
+-(BOOL) getFeatureWidth:(CIImage *)frame_sample;
 
+- (CIImage *) imageFromSampleBuffer:(CMSampleBufferRef) sampleBuffer;
+
+- (void)captureOutput:(AVCaptureOutput *)captureOutput
+didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
+       fromConnection:(AVCaptureConnection *)connection;
+
+-(void) setupCaptureSession;
+
+
+@end
+
+
+@interface CameraViewController() <AVCaptureVideoDataOutputSampleBufferDelegate>;
 @end

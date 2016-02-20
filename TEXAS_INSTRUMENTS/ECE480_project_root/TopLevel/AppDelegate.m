@@ -7,27 +7,6 @@
 
 
 
-void interruptionListenerCallback (
-                                   void	*inUserData,
-                                   UInt32	interruptionState
-                                   ) {
-    // This callback, being outside the implementation block, needs a reference
-    //	to the AudioViewController object
-    AppDelegate *delegate = (__bridge AppDelegate *) inUserData;
-    
-    if (interruptionState == kAudioSessionBeginInterruption) {
-        
-        NSLog (@"Interrupted. Stopping recording/playback.");
-        
-        [delegate.analyzer stop];
-        [delegate.generator pause];
-    } else if (interruptionState == kAudioSessionEndInterruption) {
-        // if the interruption was removed, resume recording
-        [delegate.analyzer record];
-        [delegate.generator resume];
-    }
-}
-
 
 
 //Main stuff
@@ -36,8 +15,6 @@ void interruptionListenerCallback (
 @synthesize viewController = _viewController;
 @synthesize navigationController = _navigationController;
 
-@synthesize analyzer = _analyzer;
-@synthesize generator = _generator;
 
 
 /*
@@ -52,34 +29,6 @@ void interruptionListenerCallback (
  - if a sufficient number of points have been collected, forward measured depth to temperature calculation
  Need to determine relationship between d_spacing/d_displacement and absolute depth
  */
-
-
-
--(void) setupAudioCapture
-{
-    //TODO: perform this only when audio jack device is connected, and periodically check if it needs connecting
-    AudioSessionInitialize (NULL, NULL, interruptionListenerCallback, (__bridge void *)(self));
-    
-    // before instantiating the recording audio queue object,
-    //	set the audio session category
-    UInt32 sessionCategory = kAudioSessionCategory_PlayAndRecord;
-    AudioSessionSetProperty (kAudioSessionProperty_AudioCategory,
-                             sizeof (sessionCategory),
-                             &sessionCategory);
-    
-    //    recognizer = [[FSKRecognizer alloc] init];
-    _recognizer = [[BinaryRecognizer alloc] init ];
-    _analyzer = [[AudioSignalAnalyzer alloc] init];
-    [_analyzer addRecognizer:_recognizer];
-    //    [_recognizer addReceiver:terminalController];
-    //    [_recognizer addReceiver:typeController];
-    //    [self buildScanCodes];
-    _generator = [[AudioSignalGenerator alloc] init];
-    
-    AudioSessionSetActive (true);
-    [_analyzer record];
-    [_generator play];
-}
 
 
 /*

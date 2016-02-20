@@ -26,30 +26,6 @@
 
 
 
-- (void) ConfigMotionSensors
-{
-    //Update the motion manager intervals here
-    _motionManager = [[CMMotionManager alloc] init];
-    _motionManager.accelerometerUpdateInterval = .2;
-    _motionManager.gyroUpdateInterval = .05;
-    
-    //Create lambda functions ("blocks" in objective C) to set as the actual handlers for the queues. These \
-    lambda functions will call the outputXdata functions
-    
-    [_motionManager startAccelerometerUpdatesToQueue:[NSOperationQueue currentQueue]
-                                         withHandler:^(CMAccelerometerData  *accelerometerData, NSError *error) {
-                                             [self outputAccelertionData:accelerometerData.acceleration];
-                                             if(error) { NSLog(@"%@", error); }
-                                         }];
-    
-    [_motionManager startGyroUpdatesToQueue:[NSOperationQueue currentQueue]
-                                withHandler:^(CMGyroData *gyroData, NSError *error) {
-                                    [self outputRotationData:gyroData.rotationRate];
-                                    if(error) { NSLog(@"%@", error); }
-                                }];
-    
-}
-
 
 //Accelerometer callback: reads Accelerations and outputs them to view
 -(void)outputAccelertionData:(CMAcceleration)acceleration
@@ -164,6 +140,30 @@
 }
 
 
+
+- (void) ConfigMotionSensors
+{
+    //Update the motion manager intervals here
+    _motionManager = [[CMMotionManager alloc] init];
+    _motionManager.accelerometerUpdateInterval = .2;
+    _motionManager.gyroUpdateInterval = .05;
+    
+    //Create lambda functions ("blocks" in objective C) to set as the actual handlers for the queues. These \
+    lambda functions will call the outputXdata functions
+    
+    [_motionManager startAccelerometerUpdatesToQueue:[NSOperationQueue currentQueue]
+                                         withHandler:^(CMAccelerometerData  *accelerometerData, NSError *error) {
+                                             [self outputAccelertionData:accelerometerData.acceleration];
+                                             if(error) { NSLog(@"%@", error); }
+                                         }];
+    
+    [_motionManager startGyroUpdatesToQueue:[NSOperationQueue currentQueue]
+                                withHandler:^(CMGyroData *gyroData, NSError *error) {
+                                    [self outputRotationData:gyroData.rotationRate];
+                                    if(error) { NSLog(@"%@", error); }
+                                }];
+    
+}
 
 //UIView inherited methods
 
