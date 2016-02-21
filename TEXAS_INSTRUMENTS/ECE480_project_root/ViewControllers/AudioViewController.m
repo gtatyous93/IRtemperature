@@ -39,7 +39,8 @@ void interruptionListenerCallback (
 
 @synthesize analyzer = _analyzer;
 @synthesize generator = _generator;
-
+@synthesize TransmitterAudioQUeue = _TransmitterAudioQUeue;
+@synthesize ReceiverAudioQUeue = _ReceiverAudioQUeue;
 
 
 - (void) ConfigAudio
@@ -68,12 +69,30 @@ void interruptionListenerCallback (
     [_generator play];
 }
 
+- (void) TestAudioConfig
+{
+    _analyzer = [[AudioSignalAnalyzer alloc] init]; //the recording audio queue [ana queueObject]
+    _generator = [[AudioSignalGenerator alloc] init]; //the playback audio queue [gen queueObject]
+    
+    [_generator setupAudioQueueBuffers];
+    
+}
+
 
 - (IBAction)tone:(id)sender
 {
+
     //Button press: begin playing tone
-    if([_generator isRunning]) [_generator stop];
-    else [_generator play];
+    if([_generator isRunning])
+    {
+        [sender setTitle:@"Stop"];
+        [_generator stop];
+    }
+    else
+    {
+        [sender setTitle:@"Play"];
+        [_generator play];
+    }
 }
 
 //UIView inherited methods

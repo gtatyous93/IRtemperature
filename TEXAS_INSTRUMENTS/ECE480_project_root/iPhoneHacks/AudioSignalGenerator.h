@@ -11,7 +11,6 @@
 
 @interface AudioSignalGenerator : AudioQueueObject {
 	
-    AudioQueueRef					queueObject_TESTIAN;
 	AudioQueueBufferRef				buffers[kNumberAudioDataBuffers];	// the audio queue buffers for the audio queue
 	
 	UInt32							bufferByteSize;						// the number of bytes to use in each audio queue buffer
