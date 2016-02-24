@@ -360,11 +360,19 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="1Uk-kP-24v">
-                                <rect key="frame" x="20" y="173" width="124" height="30"/>
+                                <rect key="frame" x="29" y="172" width="124" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <state key="normal" title="Tone"/>
+                                <state key="normal" title="Play"/>
                                 <connections>
                                     <action selector="tone:" destination="jhg-Wv-wns" eventType="touchUpInside" id="hRC-h6-eaw"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="udi-XZ-tS5">
+                                <rect key="frame" x="161" y="172" width="124" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <state key="normal" title="Record"/>
+                                <connections>
+                                    <action selector="record:" destination="jhg-Wv-wns" eventType="touchUpInside" id="5ib-MI-nn7"/>
                                 </connections>
                             </button>
                         </subviews>

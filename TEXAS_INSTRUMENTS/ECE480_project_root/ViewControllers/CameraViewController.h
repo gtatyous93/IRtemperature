@@ -22,11 +22,11 @@
 @property (strong, nonatomic) IBOutlet UILabel *IBdepth;
 
 @property (nonatomic) IBOutlet UIView *cameraPreviewView;
-@property (strong, nonatomic) IBOutlet UILabel *dist_LE_RE;
-@property (strong, nonatomic) IBOutlet UILabel *dist_LE_M;
-@property (strong, nonatomic) IBOutlet UILabel *dist_RE_M;
-@property (strong, nonatomic) IBOutlet UILabel *dist_face;
-@property (strong, nonatomic) IBOutlet UILabel *face_bool;
+@property (strong, atomic) IBOutlet UILabel *dist_LE_RE;
+@property (strong, atomic) IBOutlet UILabel *dist_LE_M;
+@property (strong, atomic) IBOutlet UILabel *dist_RE_M;
+@property (strong, atomic) IBOutlet UILabel *dist_face;
+@property (strong, atomic) IBOutlet UILabel *face_bool;
 
 
 -(BOOL) getFeatureWidth:(CIImage *)frame_sample;

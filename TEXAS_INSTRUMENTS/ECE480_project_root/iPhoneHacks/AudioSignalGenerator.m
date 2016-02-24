@@ -10,7 +10,7 @@
 #import "AudioQueueObject.h"
 #import "AudioSignalGenerator.h"
 
-#define NUM_CHANNELS 2
+#define NUM_CHANNELS 1
 #define NUM_BUFFERS 3
 #define BUFFER_SIZE 4096
 #define SAMPLE_TYPE short
@@ -37,7 +37,7 @@ static void playbackCallback (
 	if ([player stopped]) return;
 //    if (!inBuffer) return;
 	//[player fillBuffer:inBuffer->mAudioData];
-    int count = 0;
+    static int count = 0;
     
     SAMPLE_TYPE *casted_buffer = (SAMPLE_TYPE *)inBuffer->mAudioData;
     

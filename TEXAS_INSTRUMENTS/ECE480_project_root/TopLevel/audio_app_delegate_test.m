@@ -1,119 +1,12 @@
 //
-//  AudioViewController.m
-//  TEXAS_INSTRUMENTS
-//
-//  Created by Ian Bacus on 2/19/16.
-//  Copyright © 2016 Ian Bacus. All rights reserved.
-//
-
-#import <Foundation/Foundation.h>
-#import "AudioViewController.h"
-
-/*
-void interruptionListenerCallback (
-                                   void	*inUserData,
-                                   UInt32	interruptionState
-                                   ) {
-    // This callback, being outside the implementation block, needs a reference
-    //	to the AudioViewController object
-
-    AudioViewController *controller = (__bridge AudioViewController*) inUserData; //catch bad access exception, occurs when closing phone
-    if (interruptionState == kAudioSessionBeginInterruption) {
-        
-        NSLog (@"Interrupted. Stopping recording/playback.");
-        
-        [controller.analyzer stop];
-        [controller.generator pause];
-    } else if (interruptionState == kAudioSessionEndInterruption) {
-        // if the interruption was removed, resume recording
-        [controller.analyzer record];
-        [controller.generator resume];
-    }
-}
- */
-
-#define FREQUENCY 1000
-#define SAMPLE_RATE 44100
-#define DURATION 50.0
-#define FILENAME_FORMAT @"%0.3f-square.aif"
-
-NSURL* squareURL;
-
-static void generate_file(void)
-{
-    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    NSString *documentsDirectory = [paths objectAtIndex:0];
-    
-    NSError *error;
-    [[NSFileManager defaultManager] createDirectoryAtPath:[documentsDirectory stringByAppendingPathComponent:@"Documents"] withIntermediateDirectories:NO attributes:nil error:&error];
-    
-    double hz = FREQUENCY;
-    assert (hz > 0);
-    NSLog (@"generating %f hz tone", hz);
-    NSString *fileName = @"SQUARE.aif";//[NSString stringWithFormat: FILENAME_FORMAT, hz];
-    //        NSString *filePath = [[[NSFileManager defaultManager] currentDirectoryPath] stringByAppendingPathComponent: fileName];
-    NSString *filePath = [documentsDirectory stringByAppendingPathComponent:fileName];
-    NSURL *fileURL = [NSURL fileURLWithPath: filePath];
-    // Prepare the format
-    AudioStreamBasicDescription asbd;
-    memset(&asbd, 0, sizeof(asbd));
-    asbd.mSampleRate = SAMPLE_RATE;
-    asbd.mFormatID = kAudioFormatLinearPCM;
-    asbd.mFormatFlags = kAudioFormatFlagIsBigEndian | kAudioFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked;
-    asbd.mBitsPerChannel = 16;
-    asbd.mChannelsPerFrame = 1;
-    asbd.mFramesPerPacket = 1;
-    asbd.mBytesPerFrame = 2; asbd.mBytesPerPacket = 2;
-    // Set up the file
-    AudioFileID audioFile;
-    OSStatus audioErr = noErr;
-    audioErr = AudioFileCreateWithURL((__bridge CFURLRef)fileURL,
-                                      kAudioFileAIFFType,
-                                      &asbd,
-                                      kAudioFileFlags_EraseFile,
-                                      &audioFile);
-    assert (audioErr == noErr);
-    // Start writing samples
-    long maxSampleCount = SAMPLE_RATE;
-    long sampleCount = 0;
-    UInt32 bytesToWrite = 2;
-    double wavelengthInSamples = SAMPLE_RATE / hz;
-    while (sampleCount < maxSampleCount) {
-        for (int i=0; i<wavelengthInSamples; i++) {
-            // Square wave
-            SInt16 sample;
-            if (i < wavelengthInSamples/2) {
-                sample = CFSwapInt16HostToBig (SHRT_MAX); } else {
-                    sample = CFSwapInt16HostToBig (SHRT_MIN); }
-            audioErr = AudioFileWriteBytes(audioFile, false,
-                                           sampleCount*2, &bytesToWrite, &sample);
-            assert (audioErr == noErr); sampleCount++;
-            
-            //NSLog (@"wrote %ld samples", sampleCount);
-        }
-    }
-    audioErr = AudioFileClose(audioFile); assert (audioErr == noErr);
-    squareURL = fileURL;
-}
-
-@implementation AudioViewController
-
-
-@synthesize analyzer = _analyzer;
-@synthesize generator = _generator;
-@synthesize TransmitterAudioQUeue = _TransmitterAudioQUeue;
-@synthesize ReceiverAudioQUeue = _ReceiverAudioQUeue;
-
-
-//
 //  AudioRecorderAppDelegate.m
 //  AudioRecorder
 //
 //  Copyright TrailsintheSand.com 2008. All rights reserved.
 //
 
-
-
+#import "AudioRecorderAppDelegate.h"
+/*
 // Declare C callback functions
 void AudioInputCallback(void * inUserData,  // Custom audio metadata
                         AudioQueueRef inAQ,
@@ -127,6 +20,17 @@ void AudioOutputCallback(void * inUserData,
                          AudioQueueBufferRef outBuffer);
 
 
+
+@implementation AudioRecorderAppDelegate
+
+@synthesize window;
+
+- init {
+    if (self = [super init]) {
+        // Your initialization code here
+    }
+    return self;
+}
 
 // Takes a filled buffer and writes it to disk, "emptying" the buffer
 void AudioInputCallback(void * inUserData,
@@ -331,14 +235,12 @@ void AudioOutputCallback(void * inUserData,
 
 - (void)startPlayback
 {
-    
-    NSURL *_squareURL = squareURL;
     playState.currentPacket = 0;
     
     [self setupAudioFormat:&playState.dataFormat];
     
     OSStatus status;
-    status = AudioFileOpenURL((__bridge CFURLRef _Nonnull)(squareURL), kAudioFileReadPermission, kAudioFileAIFFType, &playState.audioFile);
+    status = AudioFileOpenURL(fileURL, kAudioFileReadPermission, kAudioFileAIFFType, &playState.audioFile);
     if (status == 0)
     {
         status = AudioQueueNewOutput(&playState.dataFormat,
@@ -387,18 +289,63 @@ void AudioOutputCallback(void * inUserData,
     AudioFileClose(playState.audioFile);
 }
 
+- (void)applicationDidFinishLaunching:(UIApplication *)application
+{
+    // Create window
+    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+    
+    // Create status label
+    labelStatus = [[UILabel alloc] initWithFrame: CGRectMake(10, 50, 300, 30)];
+    labelStatus.textAlignment = UITextAlignmentCenter;
+    labelStatus.numberOfLines = 1;
+    labelStatus.text = @"Idle";
+    
+    // Create Record button
+    buttonRecord = [UIButton buttonWithType: UIButtonTypeRoundedRect];
+    [buttonRecord setTitle:@"Record" forState:UIControlStateNormal];
+    [buttonRecord addTarget:self action:@selector(recordPressed:)
+           forControlEvents:UIControlEventTouchUpInside];
+    //buttonRecord.center = CGPointMake(window.center.x, 200);
+    buttonRecord.frame = CGRectMake(6.0, 120.0, 140, 35);
+    buttonRecord.backgroundColor = [UIColor clearColor];
+    
+    // Create Play button
+    buttonPlay = [UIButton buttonWithType: UIButtonTypeRoundedRect];
+    [buttonPlay setTitle:@"Play" forState:UIControlStateNormal];
+    [buttonPlay addTarget:self action:@selector(playPressed:)
+         forControlEvents:UIControlEventTouchUpInside];
+    //buttonPlay.center = CGPointMake(window.center.x, 150);
+    buttonPlay.frame = CGRectMake(161.0, 120.0, 140, 35);
+    buttonPlay.backgroundColor = [UIColor clearColor];
+    
+    // Get audio file page
+    char path[256];
+    [self getFilename:path maxLenth:sizeof path];
+    fileURL = CFURLCreateFromFileSystemRepresentation(NULL, (UInt8*)path, strlen(path), false);
+    
+    // Init state variables
+    playState.playing = false;
+    recordState.recording = false;
+    
+    // Add the controls to the window
+    [window addSubview:labelStatus];
+    [window addSubview:buttonRecord];
+    [window addSubview:buttonPlay];
+    
+    [window makeKeyAndVisible];
+}
+
 - (void)dealloc
 {
-    
+   
     CFRelease(fileURL);
-    CFRelease((__bridge CFTypeRef)(squareURL));
-    /*
-     [labelStatus release];
-     [buttonRecord release];
-     [buttonPlay release];
-     [window release];
-     [super dealloc];
-     */
+ 
+    [labelStatus release];
+    [buttonRecord release];
+    [buttonPlay release];
+    [window release];
+    [super dealloc];
+ 
 }
 
 - (BOOL)getFilename:(char*)buffer maxLenth:(int)maxBufferLength
@@ -411,156 +358,5 @@ void AudioOutputCallback(void * inUserData,
     return [file getCString:buffer maxLength:maxBufferLength encoding:NSUTF8StringEncoding];
 }
 
-- (void) ConfigAudio
-{
-    //TODO: perform this only when audio jack device is connected, and periodically check if it needs connecting
-    /*
-    AudioSessionInitialize (NULL, NULL, interruptionListenerCallback, (__bridge void *)(self));
-    
-    // before instantiating the recording audio queue object,
-    //	set the audio session category
-    UInt32 sessionCategory = kAudioSessionCategory_PlayAndRecord;
-    AudioSessionSetProperty (kAudioSessionProperty_AudioCategory,
-                             sizeof (sessionCategory),
-                             &sessionCategory);
-    
-    //    recognizer = [[FSKRecognizer alloc] init];
-    _recognizer = [[BinaryRecognizer alloc] init ];
-    _analyzer = [[AudioSignalAnalyzer alloc] init];
-    [_analyzer addRecognizer:_recognizer];
-    //    [_recognizer addReceiver:terminalController];
-    //    [_recognizer addReceiver:typeController];
-    //    [self buildScanCodes];
-    _generator = [[AudioSignalGenerator alloc] init];
-    
-    AudioSessionSetActive (true);
-    //[_analyzer record];
-    [_generator play];
-    */
-}
-
-- (void) TestAudioConfig
-{
-    /*
-    _analyzer = [[AudioSignalAnalyzer alloc] init]; //the recording audio queue [ana queueObject]
-    _generator = [[AudioSignalGenerator alloc] init]; //the playback audio queue [gen queueObject]
-    
-    [_generator setupAudioQueueBuffers];
-     */
-    
-}
-
-
-- (IBAction)tone:(id)sender
-{
-
-    UIButton *button = (UIButton *)sender;
-    if (!recordState.recording)
-    {
-        if (!playState.playing)
-        {
-            button.enabled = FALSE;
-            [button setTitle:@"Stop" forState:UIControlStateNormal];
-            button.enabled = TRUE;
-            printf("Starting playback\n");
-            [self startPlayback];
-        }
-        else
-        {
-            button.enabled = FALSE;
-            [button setTitle:@"Play" forState:UIControlStateNormal];
-            button.enabled = TRUE;
-            printf("Stopping playback\n");
-            [self stopPlayback];
-        }
-    }
-    [sender setNeedsLayout];
-}
-
-- (IBAction) record: (id) sender
-{
-    if (!playState.playing)
-    {
-        if (!recordState.recording)
-        {
-            printf("Starting recording\n");
-            [self startRecording];
-        }
-        else
-        {
-            printf("Stopping recording\n");
-            [self stopRecording];
-        }
-    }
-    else
-    {
-        printf("Can't start recording, currently playing\n");
-    }
-}
-
-//UIView inherited methods
-
-- (void)didReceiveMemoryWarning
-{
-    
-    [super didReceiveMemoryWarning];
-    // Release any cached data, images, etc that aren't in use.
-}
-
-#pragma mark - View lifecycle
-
-
-- (void)viewDidLoad
-{
-    //Called after the controller's view is loaded into memory
-    
-    [super viewDidLoad];
-    char path[256];
-    [self getFilename:path maxLenth:sizeof path];
-    generate_file();
-    fileURL = CFURLCreateFromFileSystemRepresentation(NULL, (UInt8*)path, strlen(path), false);
-    
-    // Init state variables
-    playState.playing = false;
-    recordState.recording = false;
-
-//    [self ConfigAudio];
-    
-}
-
-
-- (void)viewDidUnload
-{
-    [super viewDidUnload];
-    // Release any retained subviews of the main view.
-    // e.g. self.myOutlet = nil;
-}
-
-- (void)viewWillAppear:(BOOL)animated
-{
-    [super viewWillAppear:animated];
-}
-
-- (void)viewDidAppear:(BOOL)animated
-{
-    [super viewDidAppear:animated];
-}
-
-- (void)viewWillDisappear:(BOOL)animated
-{
-    [super viewWillDisappear:animated];
-}
-
-- (void)viewDidDisappear:(BOOL)animated
-{
-    [super viewDidDisappear:animated];
-}
-
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
-{
-    // Return YES for supported orientations
-    return (interfaceOrientation != UIInterfaceOrientationPortraitUpsideDown);
-}
-
-
 @end
+ */

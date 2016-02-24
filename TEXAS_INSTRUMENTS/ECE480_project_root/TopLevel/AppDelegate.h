@@ -26,6 +26,9 @@
 depth integration, video/sensor callbacks). video and sensor data callbacks should be moved to special \
 classes
 
+extern NSURL *squareURL;
+
+
 @class ViewController;
 
 

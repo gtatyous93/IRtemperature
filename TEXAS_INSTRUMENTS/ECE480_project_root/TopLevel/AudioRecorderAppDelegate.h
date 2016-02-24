@@ -1,20 +1,9 @@
 //
-//  UIViewController_AudioViewController.h
-//  TEXAS_INSTRUMENTS
+//  AudioRecorderAppDelegate.h
+//  AudioRecorder
 //
-//  Created by Ian Bacus on 2/19/16.
-//  Copyright © 2016 Ian Bacus. All rights reserved.
+//  Copyright TrailsintheSand.com 2008. All rights reserved.
 //
-
-#import <UIKit/UIKit.h>
-//#import "AppDelegate.h"
-
-#import "AVFoundation/AVFoundation.h"
-
-#import "AudioQueueObject.h"
-#import "AudioSignalGenerator.h"
-#import "AudioSignalAnalyzer.h"
-#import "BinaryRecognizer.h"
 
 #import <UIKit/UIKit.h>
 #include <AudioToolbox/AudioToolbox.h>
@@ -23,7 +12,6 @@
 
 #define NUM_BUFFERS 3
 #define SECONDS_TO_RECORD 10
-
 
 // Struct defining recording state
 typedef struct
@@ -47,8 +35,10 @@ typedef struct
     bool                         playing;
 } PlayState;
 
-@interface AudioViewController : UIViewController
+// The main application
+@interface AudioRecorderAppDelegate : NSObject  <UIApplicationDelegate>
 {
+    UIWindow *window;
     UILabel* labelStatus;
     UIButton* buttonRecord;
     UIButton* buttonPlay;
@@ -57,25 +47,7 @@ typedef struct
     CFURLRef fileURL;
 }
 
-
-//Using standard core Audio stuff
-@property (nonatomic) AudioQueueRef *TransmitterAudioQUeue;
-@property (nonatomic) AudioQueueRef *ReceiverAudioQUeue;
-//@property (retain) IBOutlet UIButton *thebutton;
-
-//Using iPhone hacks
-@property (nonatomic) AudioSignalGenerator *generator;
-@property (nonatomic) AudioSignalAnalyzer* analyzer;
-@property (nonatomic) BinaryRecognizer* recognizer;
-
-
-
-- (IBAction)tone:(id)sender;
-- (IBAction)record:(id)sender;
-
-
-
-//Stuff from application online
+@property (nonatomic, retain) UIWindow *window;
 
 - (BOOL)getFilename:(char*)buffer maxLenth:(int)maxBufferLength;
 - (void)setupAudioFormat:(AudioStreamBasicDescription*)format;
@@ -85,12 +57,5 @@ typedef struct
 - (void)stopRecording;
 - (void)startPlayback;
 - (void)stopPlayback;
-
-
-
-
-
-
-
 
 @end

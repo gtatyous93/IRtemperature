@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2D4216D01C7E39F100EC1B32 /* audio_app_delegate_test.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D4216CF1C7E39F100EC1B32 /* audio_app_delegate_test.m */; };
 		2D5A725D1C778B4900B5D44D /* AudioViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D5A725C1C778B4900B5D44D /* AudioViewController.m */; };
 		2D5A725F1C778B5900B5D44D /* CoreMotionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D5A725E1C778B5900B5D44D /* CoreMotionViewController.m */; };
 		2D5A72611C778B6400B5D44D /* CameraViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D5A72601C778B6400B5D44D /* CameraViewController.m */; };
@@ -56,6 +57,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		2D4216CF1C7E39F100EC1B32 /* audio_app_delegate_test.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = audio_app_delegate_test.m; sourceTree = "<group>"; };
+		2D4216D11C7E3A1900EC1B32 /* AudioRecorderAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AudioRecorderAppDelegate.h; sourceTree = "<group>"; };
 		2D5A725C1C778B4900B5D44D /* AudioViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AudioViewController.m; sourceTree = "<group>"; };
 		2D5A725E1C778B5900B5D44D /* CoreMotionViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CoreMotionViewController.m; sourceTree = "<group>"; };
 		2D5A72601C778B6400B5D44D /* CameraViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CameraViewController.m; sourceTree = "<group>"; };
@@ -188,6 +191,8 @@
 				2D74CBDF1C173AE500700459 /* AppDelegate.m */,
 				2D74CBDC1C173AE500700459 /* main.m */,
 				2D5A72631C788A9400B5D44D /* Main.storyboard */,
+				2D4216CF1C7E39F100EC1B32 /* audio_app_delegate_test.m */,
+				2D4216D11C7E3A1900EC1B32 /* AudioRecorderAppDelegate.h */,
 			);
 			name = "Top Level";
 			path = TopLevel;
@@ -404,6 +409,7 @@
 				2DAF79021C5A9730008BB151 /* AudioQueueObject.m in Sources */,
 				2D74CBE91C173AE600700459 /* TEXAS_INSTRUMENTS.xcdatamodeld in Sources */,
 				2D6057561C63E1BE003C3F22 /* BinaryRecognizer.mm in Sources */,
+				2D4216D01C7E39F100EC1B32 /* audio_app_delegate_test.m in Sources */,
 				2DAF78FC1C5A96FC008BB151 /* AudioSignalGenerator.m in Sources */,
 				2DAF79031C5A9730008BB151 /* AudioSignalAnalyzer.m in Sources */,
 				2D5A72611C778B6400B5D44D /* CameraViewController.m in Sources */,
