@@ -105,6 +105,20 @@ static void generate_file(void)
 @synthesize ReceiverAudioQUeue = _ReceiverAudioQUeue;
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+///-------------------------------
+
 //
 //  AudioRecorderAppDelegate.m
 //  AudioRecorder
@@ -219,7 +233,7 @@ void AudioOutputCallback(void * inUserData,
     format->mSampleRate = 8000.0;
     format->mFormatID = kAudioFormatLinearPCM;
     format->mFramesPerPacket = 1;
-    format->mChannelsPerFrame = 1;
+    format->mChannelsPerFrame = 1;//default 1
     format->mBytesPerFrame = 2;
     format->mBytesPerPacket = 2;
     format->mBitsPerChannel = 16;

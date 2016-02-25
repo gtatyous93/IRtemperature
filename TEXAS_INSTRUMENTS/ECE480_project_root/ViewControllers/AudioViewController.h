@@ -55,7 +55,20 @@ typedef struct
     RecordState recordState;
     PlayState playState;
     CFURLRef fileURL;
+    UISlider *frequencySlider;
+    AudioComponentInstance toneUnit;
+    
+@public
+    double frequency;
+    double sampleRate;
+    double theta;
 }
+
+@property (nonatomic, retain) IBOutlet UISlider *frequencySlider;
+@property (nonatomic, retain) IBOutlet UIButton *playButton;
+@property (nonatomic, retain) IBOutlet UILabel *frequencyLabel;
+
+- (IBAction)sliderChanged:(UISlider *)frequencySlider;
 
 
 //Using standard core Audio stuff

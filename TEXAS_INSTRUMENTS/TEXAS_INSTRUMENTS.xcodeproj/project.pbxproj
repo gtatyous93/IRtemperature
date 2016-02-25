@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		2D4216D01C7E39F100EC1B32 /* audio_app_delegate_test.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D4216CF1C7E39F100EC1B32 /* audio_app_delegate_test.m */; };
+		2D4216D71C7F3AC100EC1B32 /* ToneGeneratorAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D4216D41C7F3AC100EC1B32 /* ToneGeneratorAppDelegate.m */; };
+		2D4216D81C7F3AC100EC1B32 /* ToneGeneratorViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D4216D61C7F3AC100EC1B32 /* ToneGeneratorViewController.m */; };
 		2D5A725D1C778B4900B5D44D /* AudioViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D5A725C1C778B4900B5D44D /* AudioViewController.m */; };
 		2D5A725F1C778B5900B5D44D /* CoreMotionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D5A725E1C778B5900B5D44D /* CoreMotionViewController.m */; };
 		2D5A72611C778B6400B5D44D /* CameraViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D5A72601C778B6400B5D44D /* CameraViewController.m */; };
@@ -59,6 +61,10 @@
 /* Begin PBXFileReference section */
 		2D4216CF1C7E39F100EC1B32 /* audio_app_delegate_test.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = audio_app_delegate_test.m; sourceTree = "<group>"; };
 		2D4216D11C7E3A1900EC1B32 /* AudioRecorderAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AudioRecorderAppDelegate.h; sourceTree = "<group>"; };
+		2D4216D31C7F3AC100EC1B32 /* ToneGeneratorAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ToneGeneratorAppDelegate.h; path = "Audio Units/ToneGeneratorAppDelegate.h"; sourceTree = "<group>"; };
+		2D4216D41C7F3AC100EC1B32 /* ToneGeneratorAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ToneGeneratorAppDelegate.m; path = "Audio Units/ToneGeneratorAppDelegate.m"; sourceTree = "<group>"; };
+		2D4216D51C7F3AC100EC1B32 /* ToneGeneratorViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ToneGeneratorViewController.h; path = "Audio Units/ToneGeneratorViewController.h"; sourceTree = "<group>"; };
+		2D4216D61C7F3AC100EC1B32 /* ToneGeneratorViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ToneGeneratorViewController.m; path = "Audio Units/ToneGeneratorViewController.m"; sourceTree = "<group>"; };
 		2D5A725C1C778B4900B5D44D /* AudioViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AudioViewController.m; sourceTree = "<group>"; };
 		2D5A725E1C778B5900B5D44D /* CoreMotionViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CoreMotionViewController.m; sourceTree = "<group>"; };
 		2D5A72601C778B6400B5D44D /* CameraViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CameraViewController.m; sourceTree = "<group>"; };
@@ -144,6 +150,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2D4216D21C7F3AAE00EC1B32 /* Audio Units */ = {
+			isa = PBXGroup;
+			children = (
+				2D4216D31C7F3AC100EC1B32 /* ToneGeneratorAppDelegate.h */,
+				2D4216D41C7F3AC100EC1B32 /* ToneGeneratorAppDelegate.m */,
+				2D4216D51C7F3AC100EC1B32 /* ToneGeneratorViewController.h */,
+				2D4216D61C7F3AC100EC1B32 /* ToneGeneratorViewController.m */,
+			);
+			name = "Audio Units";
+			sourceTree = "<group>";
+		};
 		2D5A72591C778A8600B5D44D /* ViewControllers */ = {
 			isa = PBXGroup;
 			children = (
@@ -230,6 +247,7 @@
 		2D74CBDA1C173AE500700459 /* ECE480_project_root */ = {
 			isa = PBXGroup;
 			children = (
+				2D4216D21C7F3AAE00EC1B32 /* Audio Units */,
 				2D5A72621C78876700B5D44D /* Top Level */,
 				2D5A725B1C778A9C00B5D44D /* iPhone Hacks */,
 				2D5A72591C778A8600B5D44D /* ViewControllers */,
@@ -406,6 +424,7 @@
 				2D74CBE01C173AE500700459 /* AppDelegate.m in Sources */,
 				2D74CC1B1C173BA700700459 /* queue.m in Sources */,
 				2D97F9301C63D14900B204A4 /* AudioController.m in Sources */,
+				2D4216D81C7F3AC100EC1B32 /* ToneGeneratorViewController.m in Sources */,
 				2DAF79021C5A9730008BB151 /* AudioQueueObject.m in Sources */,
 				2D74CBE91C173AE600700459 /* TEXAS_INSTRUMENTS.xcdatamodeld in Sources */,
 				2D6057561C63E1BE003C3F22 /* BinaryRecognizer.mm in Sources */,
@@ -413,6 +432,7 @@
 				2DAF78FC1C5A96FC008BB151 /* AudioSignalGenerator.m in Sources */,
 				2DAF79031C5A9730008BB151 /* AudioSignalAnalyzer.m in Sources */,
 				2D5A72611C778B6400B5D44D /* CameraViewController.m in Sources */,
+				2D4216D71C7F3AC100EC1B32 /* ToneGeneratorAppDelegate.m in Sources */,
 				2D5A725D1C778B4900B5D44D /* AudioViewController.m in Sources */,
 				2D74CBDD1C173AE500700459 /* main.m in Sources */,
 				2D5A725F1C778B5900B5D44D /* CoreMotionViewController.m in Sources */,
