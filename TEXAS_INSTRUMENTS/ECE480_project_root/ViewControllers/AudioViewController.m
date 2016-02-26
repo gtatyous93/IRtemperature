@@ -113,6 +113,17 @@ static void generate_file(void)
 
 ///-------------------------------
 
+OSStatus playbackCallback(
+                          void *inRefCon,
+                          AudioUnitRenderActionFlags 	*ioActionFlags,
+                          const AudioTimeStamp 		*inTimeStamp,
+                          UInt32 						inBusNumber,
+                          UInt32 						inNumberFrames,
+                          AudioBufferList 			*ioData)
+{
+    return noErr;
+}
+
 OSStatus recordingCallback(void *inRefCon,
                            AudioUnitRenderActionFlags *ioActionFlags,
                            const AudioTimeStamp *inTimeStamp,
@@ -146,21 +157,21 @@ OSStatus recordingCallback(void *inRefCon,
     bufferList.mBuffers[0] = buffer;
     
     // render input and check for error
-    //status = AudioUnitRender([viewController audioUnit], ioActionFlags, inTimeStamp, inBusNumber, inNumberFrames,     &bufferList);
+   // status = AudioUnitRender([viewController audioUnit], ioActionFlags, inTimeStamp, inBusNumber, inNumberFrames,     &bufferList);
     //[viewController hasError:status:__FILE__:__LINE__];
     
     // process the bufferlist in the audio processor
-    //[viewController processBuffer:&bufferList];
+    [viewController processBuffer:&bufferList];
     
     // clean up the buffer
 
-    int thingie = bufferList.mBuffers[0].mData;
-    if (thingie)   [viewController frequencyLabel].text = [NSString stringWithFormat:@"%i",thingie];
+
+//    int thingie = bufferList.mBuffers[0].mData;
+//    if (thingie)   [viewController frequencyLabel].text = [NSString stringWithFormat:@"%i",thingie];
     free(bufferList.mBuffers[0].mData);
     
     return noErr;
 }
-
 
 OSStatus RenderTone(
                     void *inRefCon,
@@ -186,8 +197,21 @@ OSStatus RenderTone(
     // Generate the samples
     for (UInt32 frame = 0; frame < inNumberFrames; frame++)
     {
-        buffer[frame] = sin(theta) * amplitude;
         
+#ifdef SQUARE_GEN
+        if ((theta < (1.0 * M_PI)) && (theta > 0.0))
+        {
+            //positive
+            buffer[frame] = amplitude;
+        }
+        if ((theta < (2.0 * M_PI)) && (theta > (1.0 * M_PI)))
+        {
+            //negative
+            buffer[frame] = -amplitude;
+        }
+#else
+         buffer[frame] = sin(theta) * amplitude;
+#endif
         theta += theta_increment;
         if (theta > 2.0 * M_PI)
         {
@@ -250,14 +274,14 @@ void ToneInterruptionListener(void *inClientData, UInt32 inInterruptionState)
 //    [self hasError:status:__FILE__:__LINE__];
     
     // define that we want play on io on the output bus
-   /*
+   
     status = AudioUnitSetProperty(audioUnit,
                                   kAudioOutputUnitProperty_EnableIO, // use io
                                   kAudioUnitScope_Output, // scope to output
                                   kOutputBus, // select output bus (0)
                                   &flag, // set flag
                                   sizeof(flag));
-    */
+    
 //    [self hasError:status:__FILE__:__LINE__];
     
     /*
@@ -278,14 +302,14 @@ void ToneInterruptionListener(void *inClientData, UInt32 inInterruptionState)
     audioFormat.mBytesPerFrame      = 2;
     
     // set the format on the output stream
-    /*
+    
     status = AudioUnitSetProperty(audioUnit,
                                   kAudioUnitProperty_StreamFormat,
                                   kAudioUnitScope_Output,
                                   kInputBus,
                                   &audioFormat,
                                   sizeof(audioFormat));
-     */
+    
     
 //    [self hasError:status:__FILE__:__LINE__];
     
@@ -327,14 +351,14 @@ void ToneInterruptionListener(void *inClientData, UInt32 inInterruptionState)
     //callbackStruct.inputProcRefCon = (__bridge void * _Nullable)(self);
     
     // set playbackCallback as callback on our renderer for the output bus
-    /*
+    
     status = AudioUnitSetProperty(audioUnit,
                                   kAudioUnitProperty_SetRenderCallback,
                                   kAudioUnitScope_Global, //kAudioUnitScope_Global
                                   kOutputBus,
                                   &callbackStruct,
                                   sizeof(callbackStruct));
-     */
+    
     
     //[self hasError:status:__FILE__:__LINE__];
     
@@ -345,14 +369,14 @@ void ToneInterruptionListener(void *inClientData, UInt32 inInterruptionState)
      we need to tell the audio unit to allocate the render buffer,
      that we can directly write into it.
      */
-    /*
+    
     status = AudioUnitSetProperty(audioUnit,
                                   kAudioUnitProperty_ShouldAllocateBuffer,
                                   kAudioUnitScope_Output,
                                   kInputBus,
                                   &flag,
                                   sizeof(flag));
-     */
+    
     
     /*
      we set the number of channels to mono and allocate our block size to
@@ -439,7 +463,9 @@ void ToneInterruptionListener(void *inClientData, UInt32 inInterruptionState)
     }
     
     // copy incoming audio data to the audio buffer
-    memcpy(audioBuffer.mData, audioBufferList->mBuffers[0].mData, audioBufferList->mBuffers[0].mDataByteSize);
+    int thingie = audioBufferList->mBuffers[0].mData;
+    //memcpy(audioBuffer.mData, audioBufferList->mBuffers[0].mData, audioBufferList->mBuffers[0].mDataByteSize);
+    sampleLabel.text = [NSString stringWithFormat:@"%i",thingie];
 }
 
 
@@ -453,7 +479,9 @@ void ToneInterruptionListener(void *inClientData, UInt32 inInterruptionState)
 - (IBAction)sliderChanged:(id)sender
 {
     UISlider * slider = (UISlider *)sender;
-    frequency = (100000*slider.value);
+    //if(slider.value > .5) frequency = 22000;
+//    else
+    frequency = (10000*slider.value);
     frequencyLabel.text = [NSString stringWithFormat:@"%4.1f Hz", frequency];
     //sampleLabel.text =[NSString stringWithFormat:@"%4.1f Hz", frequency];
 }
@@ -579,7 +607,6 @@ void ToneInterruptionListener(void *inClientData, UInt32 inInterruptionState)
     
     
     [self sliderChanged:frequencySlider];
-    frequency = 22000;
     sampleRate = 44100;
     
     OSStatus result = AudioSessionInitialize(NULL, NULL, ToneInterruptionListener, (__bridge void *)(self));
