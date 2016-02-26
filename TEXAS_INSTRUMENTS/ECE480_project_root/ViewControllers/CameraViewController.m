@@ -42,19 +42,25 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     CIImage *image = [self imageFromSampleBuffer:sampleBuffer];
     
     //TODO: fix this code, it is buggy right now
-    if([self getFeatureWidth:image]) _face_bool.text = @"Face detected";
-    
-    _face_bool.text = @"No face";
+    bool face_test = [self getFeatureWidth:image];
     
     //_axial_displacement = [self displacement_capture_reset]; //positive: closer, negative: farther
     //_delta_width = [[_widths objectAtIndex:0] floatValue] - [[_previous_widths objectAtIndex:0] floatValue];
     //_depth = [self calculate_depth:_delta_width withDisplacement:_axial_displacement];
     
-    _dist_LE_RE.text = [NSString stringWithFormat:@" %.2f",[[_widths objectAtIndex:0] doubleValue]];
-    _dist_LE_M.text =  [NSString stringWithFormat:@" %.2f",[[_widths objectAtIndex:1] doubleValue]];
-    _dist_RE_M.text =  [NSString stringWithFormat:@" %.2f",[[_widths objectAtIndex:2] doubleValue]];
-    _dist_face.text =  [NSString stringWithFormat:@" %.2f",[[_widths objectAtIndex:3] doubleValue]];
-    /*
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^ {
+        
+        if(face_test) _face_bool.text = @"Face detected";
+        else _face_bool.text = @"No face";
+        
+        _dist_LE_RE.text = [NSString stringWithFormat:@" %.2f",[[_widths objectAtIndex:0] doubleValue]];
+        _dist_LE_M.text =  [NSString stringWithFormat:@" %.2f",[[_widths objectAtIndex:1] doubleValue]];
+        _dist_RE_M.text =  [NSString stringWithFormat:@" %.2f",[[_widths objectAtIndex:2] doubleValue]];
+        _dist_face.text =  [NSString stringWithFormat:@" %.2f",[[_widths objectAtIndex:3] doubleValue]];
+        //Your code goes in here
+        //NSLog(@"Main Thread Code");
+        
+    }];    /*
      
      //Update previous_widths
      for (NSNumber* width_reading in _widths) //iterate through LE_RE, RE_M, LE_M, facewidth

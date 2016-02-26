@@ -32,10 +32,6 @@ void interruptionListenerCallback (
 }
  */
 
-#define FREQUENCY 1000
-#define SAMPLE_RATE 44100
-#define DURATION 50.0
-#define FILENAME_FORMAT @"%0.3f-square.aif"
 
 /*
 NSURL* squareURL;
@@ -239,6 +235,7 @@ void ToneInterruptionListener(void *inClientData, UInt32 inInterruptionState)
 @synthesize frequencySlider;
 @synthesize playButton;
 @synthesize frequencyLabel;
+@synthesize sampleLabel;
 
 
 //input streaming
@@ -410,6 +407,14 @@ void ToneInterruptionListener(void *inClientData, UInt32 inInterruptionState)
         audioBuffer.mData = malloc(sourceBuffer.mDataByteSize);
     }
     
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^ {
+        
+        int thingie = audioBufferList->mBuffers[0].mData;
+        sampleLabel.text = [NSString stringWithFormat:@"%i",thingie];
+        //Your code goes in here
+        //NSLog(@"Main Thread Code");
+        
+    }];
     /**
      Here we modify the raw data buffer now.
      In my example this is a simple input volume gain.
@@ -463,10 +468,12 @@ void ToneInterruptionListener(void *inClientData, UInt32 inInterruptionState)
     }
     
     // copy incoming audio data to the audio buffer
-    int thingie = audioBufferList->mBuffers[0].mData;
+    
     //memcpy(audioBuffer.mData, audioBufferList->mBuffers[0].mData, audioBufferList->mBuffers[0].mDataByteSize);
-    sampleLabel.text = [NSString stringWithFormat:@"%i",thingie];
+    
 }
+
+
 
 
 //
@@ -479,11 +486,11 @@ void ToneInterruptionListener(void *inClientData, UInt32 inInterruptionState)
 - (IBAction)sliderChanged:(id)sender
 {
     UISlider * slider = (UISlider *)sender;
-    //if(slider.value > .5) frequency = 22000;
-//    else
-    frequency = (10000*slider.value);
+    frequency = 100000*slider.value;
+//    if(slider.value > .5) frequency = 100000*slider.value;
+//    else    frequency = (10000*slider.value);
     frequencyLabel.text = [NSString stringWithFormat:@"%4.1f Hz", frequency];
-    //sampleLabel.text =[NSString stringWithFormat:@"%4.1f Hz", frequency];
+    sampleLabel.text =[NSString stringWithFormat:@"%4.1f Hz", frequency];
 }
 
 - (void)createToneUnit
@@ -605,9 +612,9 @@ void ToneInterruptionListener(void *inClientData, UInt32 inInterruptionState)
     
     [self initializeAudio]; //input stream
     
-    
+    _gain = 1;
     [self sliderChanged:frequencySlider];
-    sampleRate = 44100;
+    sampleRate = SAMPLE_RATE;
     
     OSStatus result = AudioSessionInitialize(NULL, NULL, ToneInterruptionListener, (__bridge void *)(self));
     if (result == kAudioSessionNoError)
@@ -620,6 +627,7 @@ void ToneInterruptionListener(void *inClientData, UInt32 inInterruptionState)
 
 - (void)viewDidUnload {
     self.frequencyLabel = nil;
+    self.sampleLabel = nil;
     self.playButton = nil;
     self.frequencySlider = nil;
     

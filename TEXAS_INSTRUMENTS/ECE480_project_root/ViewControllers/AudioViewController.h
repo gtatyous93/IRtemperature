@@ -38,8 +38,12 @@
 #define kInputBus 1
 
 // our default sample rate
-#define SAMPLE_RATE 44100.00
+#define SAMPLE_RATE 441000.00
 
+#define FREQUENCY 1000
+//#define SAMPLE_RATE 44100
+#define DURATION 50.0
+#define FILENAME_FORMAT @"%0.3f-square.aif"
 
 /////
 
@@ -73,7 +77,7 @@ typedef struct
     // Audio buffers
     AudioBuffer audioBuffer;
     
-    UILabel* sampleLabel;
+//    UILabel* sampleLabel;
     UILabel* labelStatus;
     UIButton* buttonRecord;
     UIButton* buttonPlay;
