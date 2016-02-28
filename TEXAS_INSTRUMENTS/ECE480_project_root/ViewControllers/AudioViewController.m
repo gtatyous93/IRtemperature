@@ -179,7 +179,7 @@ OSStatus RenderTone(
 
 {
     // Fixed amplitude is good enough for our purposes
-    const double amplitude = 0.25;
+    const double amplitude = .5;
     
     // Get the tone parameters out of the view controller
     AudioViewController *viewController = (__bridge AudioViewController *)inRefCon;
@@ -288,6 +288,7 @@ void ToneInterruptionListener(void *inClientData, UInt32 inInterruptionState)
      
      We want 16 bits, 2 bytes per packet/frames at 44khz
      */
+    /*
     AudioStreamBasicDescription audioFormat;
     audioFormat.mSampleRate         = SAMPLE_RATE;
     audioFormat.mFormatID           = kAudioFormatLinearPCM;
@@ -297,6 +298,16 @@ void ToneInterruptionListener(void *inClientData, UInt32 inInterruptionState)
     audioFormat.mBitsPerChannel     = 16;
     audioFormat.mBytesPerPacket     = 2;
     audioFormat.mBytesPerFrame      = 2;
+     */
+    AudioStreamBasicDescription audioFormat;
+    audioFormat.mSampleRate         = IN_SAMPLE_RATE;
+    audioFormat.mFormatID           = kAudioFormatLinearPCM;
+    audioFormat.mFormatFlags        = kAudioFormatFlagIsPacked | kAudioFormatFlagIsSignedInteger;
+    audioFormat.mBytesPerPacket     = 4;
+    audioFormat.mFramesPerPacket    = 4;
+    audioFormat.mBytesPerFrame      = 1;
+    audioFormat.mChannelsPerFrame   = 1;
+    audioFormat.mBitsPerChannel     = 32;
     
     // set the format on the output stream
     
@@ -409,12 +420,39 @@ void ToneInterruptionListener(void *inClientData, UInt32 inInterruptionState)
     
     [[NSOperationQueue mainQueue] addOperationWithBlock:^ {
         
-        int thingie = audioBufferList->mBuffers[0].mData;
-        sampleLabel.text = [NSString stringWithFormat:@"%i",thingie];
+        int data_sample = audioBufferList->mBuffers[0].mData;
+        //00 2a 44 16, 00 f6 c2 16,
+        //             00 e2 1f 18,
+        //82 59, c4 13, c4 91, 00 00
+        
+        data_sample = (data_sample&0x00FFFF00) >> 8;
+        _min_sample = MIN(_min_sample,data_sample);
+        _max_sample = MAX(_min_sample,data_sample);
+        _mid_voltage = (_max_sample - _min_sample)/2;
+        
+        if(_current_sample_index ==0) {
+            _current_sample_index = 31;
+            //update on main thread output window
+            sampleLabel.text = [NSString stringWithFormat:@"%x",_current_sample];
+            _current_sample = 0;
+        }
+        else _current_sample_index--;
+        
+        int temp;
+        if( data_sample > _mid_voltage) temp = 1;
+        else temp = 0;
+       //int temp = (((data_sample&0x000000FF) ? 1 : 0 ) << _current_sample_index);
+        
+        _current_sample |= temp<<_current_sample_index;
+        //thingie = (thingie&0x00FFFF00)>>8;
+
         //Your code goes in here
         //NSLog(@"Main Thread Code");
         
     }];
+    
+    
+    
     /**
      Here we modify the raw data buffer now.
      In my example this is a simple input volume gain.
@@ -486,7 +524,7 @@ void ToneInterruptionListener(void *inClientData, UInt32 inInterruptionState)
 - (IBAction)sliderChanged:(id)sender
 {
     UISlider * slider = (UISlider *)sender;
-    frequency = 100000*slider.value;
+//    frequency = 15000 + 10000*(slider.value - 0.5);
 //    if(slider.value > .5) frequency = 100000*slider.value;
 //    else    frequency = (10000*slider.value);
     frequencyLabel.text = [NSString stringWithFormat:@"%4.1f Hz", frequency];
@@ -612,9 +650,11 @@ void ToneInterruptionListener(void *inClientData, UInt32 inInterruptionState)
     
     [self initializeAudio]; //input stream
     
+    frequency = 18000;
+    _current_sample_index = 31;
     _gain = 1;
     [self sliderChanged:frequencySlider];
-    sampleRate = SAMPLE_RATE;
+    sampleRate = OUT_SAMPLE_RATE; //for output
     
     OSStatus result = AudioSessionInitialize(NULL, NULL, ToneInterruptionListener, (__bridge void *)(self));
     if (result == kAudioSessionNoError)

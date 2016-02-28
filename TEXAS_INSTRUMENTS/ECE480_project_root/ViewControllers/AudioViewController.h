@@ -38,7 +38,8 @@
 #define kInputBus 1
 
 // our default sample rate
-#define SAMPLE_RATE 441000.00
+#define OUT_SAMPLE_RATE 500000.00 //441000.00
+#define IN_SAMPLE_RATE 2960.00 //set to four times the baud rate of the incoming temperature data
 
 #define FREQUENCY 1000
 //#define SAMPLE_RATE 44100
@@ -93,10 +94,14 @@ typedef struct
     double theta;
 }
 
+
+
 @property (readonly) AudioBuffer audioBuffer;
 @property (readonly) AudioComponentInstance audioUnit;
 @property (nonatomic) float gain;
-
+@property (nonatomic) int min_sample;
+@property (nonatomic) int max_sample;
+@property (nonatomic) int mid_voltage;
 
 
 @property (nonatomic, retain) IBOutlet UISlider *frequencySlider;
@@ -109,6 +114,10 @@ typedef struct
 @property (nonatomic) AudioQueueRef *TransmitterAudioQUeue;
 @property (nonatomic) AudioQueueRef *ReceiverAudioQUeue;
 //@property (retain) IBOutlet UIButton *thebutton;
+
+
+@property (nonatomic) int current_sample_index;
+@property (nonatomic) int current_sample;
 
 
 //Audio Streaming input

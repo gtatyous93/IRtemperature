@@ -25,6 +25,19 @@
 @synthesize rotat_FIFO = _rotat_FIFO;
 
 
+-(void)outputMotionData:(CMDeviceMotion *)motion
+{
+    self.rotX.text = [NSString stringWithFormat:@" %.4fg",[motion attitude].pitch];
+    self.rotY.text = [NSString stringWithFormat:@" %.4fg",[motion attitude].roll];
+    self.rotZ.text = [NSString stringWithFormat:@" %.4fg",[motion attitude].yaw];
+    
+    self.accX.text = [NSString stringWithFormat:@" %.4fg",[motion userAcceleration].x];
+    self.accY.text = [NSString stringWithFormat:@" %.4fg",[motion userAcceleration].y];
+    self.accZ.text = [NSString stringWithFormat:@" %.4fg",[motion userAcceleration].z];
+    
+//    self.accY.text = [NSString stringWithFormat:@" %.2fg",[motion gravity]];
+    
+}
 
 
 //Accelerometer callback: reads Accelerations and outputs them to view
@@ -145,24 +158,19 @@
 {
     //Update the motion manager intervals here
     _motionManager = [[CMMotionManager alloc] init];
-    _motionManager.accelerometerUpdateInterval = .2;
-    _motionManager.gyroUpdateInterval = .05;
+    //_motionManager.accelerometerUpdateInterval = .2;
+    //_motionManager.gyroUpdateInterval = .05;
+    _motionManager.deviceMotionUpdateInterval = .05;
+    
     
     //Create lambda functions ("blocks" in objective C) to set as the actual handlers for the queues. These \
     lambda functions will call the outputXdata functions
     
-    [_motionManager startAccelerometerUpdatesToQueue:[NSOperationQueue currentQueue]
-                                         withHandler:^(CMAccelerometerData  *accelerometerData, NSError *error) {
-                                             [self outputAccelertionData:accelerometerData.acceleration];
-                                             if(error) { NSLog(@"%@", error); }
-                                         }];
+    //[_motionManager startAccelerometerUpdatesToQueue:[NSOperationQueue currentQueue] withHandler:^(CMAccelerometerData  *accelerometerData, NSError *error) { [self outputAccelertionData:accelerometerData.acceleration]; if(error) { NSLog(@"%@", error); } }];
     
-    [_motionManager startGyroUpdatesToQueue:[NSOperationQueue currentQueue]
-                                withHandler:^(CMGyroData *gyroData, NSError *error) {
-                                    [self outputRotationData:gyroData.rotationRate];
-                                    if(error) { NSLog(@"%@", error); }
-                                }];
+    //[_motionManager startGyroUpdatesToQueue:[NSOperationQueue currentQueue] withHandler:^(CMGyroData *gyroData, NSError *error) { [self outputRotationData:gyroData.rotationRate]; if(error) { NSLog(@"%@", error); } }];
     
+    [_motionManager startDeviceMotionUpdatesToQueue:[NSOperationQueue currentQueue] withHandler:^(CMDeviceMotion *motionData, NSError *error) { [self outputMotionData:motionData]; if(error) { NSLog(@"%@", error); } }];
 }
 
 //UIView inherited methods

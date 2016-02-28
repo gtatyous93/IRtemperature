@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "CameraViewController.h"
+@import Foundation;
 
 
 @implementation CameraViewController
@@ -128,6 +129,12 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     // Create an image object from the Quartz image
     CIImage *image = [CIImage imageWithCGImage:quartzImage];
     
+    CGAffineTransform ta = CGAffineTransformMakeRotation( 1.0 / 20.0 * M_PI );
+    //[image setTransform:CGAffineTransformMakeRotation(degreesToRadians(90))];
+    
+    CIFilter *f = [CIFilter filterWithName:@"CIAffineTransform"];
+    CIFilter *filter1 = [CIFilter filterWithName:@"CIAffineTransform" keysAndValues:@"inputImage", image, nil];
+    
     // Release the Quartz image
     CGImageRelease(quartzImage);
     
@@ -148,7 +155,8 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     ////
     _IBdepth.text = [NSString stringWithFormat:@" %@",_IBdepth];
    
-    if(!features) return false;
+    if([features count] == 0) return false;
+    
     //Clear array (for synchronization purposes.. see main loop logic)
     for (NSUInteger i = 0; i < [_widths count]; ++i) {
         NSNumber * zero = [_widths objectAtIndex:i];
@@ -336,6 +344,20 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 {
     // Return YES for supported orientations
     return (interfaceOrientation != UIInterfaceOrientationPortraitUpsideDown);
+}
+
+- (NSUInteger) supportedInterfaceOrientations {
+    // Return a bitmask of supported orientations. If you need more,
+    // use bitwise or (see the commented return).
+    return UIInterfaceOrientationMaskPortrait;
+    // return UIInterfaceOrientationMaskPortrait | UIInterfaceOrientationMaskPortraitUpsideDown;
+}
+
+- (UIInterfaceOrientation) preferredInterfaceOrientationForPresentation {
+    // Return the orientation you'd prefer - this is what it launches to. The
+    // user can still rotate. You don't have to implement this method, in which
+    // case it launches in the current orientation
+    return UIInterfaceOrientationPortrait;
 }
 
 
