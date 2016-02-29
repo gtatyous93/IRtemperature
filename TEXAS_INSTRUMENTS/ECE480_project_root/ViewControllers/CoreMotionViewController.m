@@ -27,15 +27,37 @@
 
 -(void)outputMotionData:(CMDeviceMotion *)motion
 {
-    self.rotX.text = [NSString stringWithFormat:@" %.4fg",[motion attitude].pitch];
-    self.rotY.text = [NSString stringWithFormat:@" %.4fg",[motion attitude].roll];
-    self.rotZ.text = [NSString stringWithFormat:@" %.4fg",[motion attitude].yaw];
+    self.rotX.text = [NSString stringWithFormat:@" %.3fg",[motion attitude].pitch];
+    self.rotY.text = [NSString stringWithFormat:@" %.3fg",[motion attitude].roll];
+    //self.rotZ.text = [NSString stringWithFormat:@" %.4fg",[motion attitude].yaw];
     
-    self.accX.text = [NSString stringWithFormat:@" %.4fg",[motion userAcceleration].x];
-    self.accY.text = [NSString stringWithFormat:@" %.4fg",[motion userAcceleration].y];
-    self.accZ.text = [NSString stringWithFormat:@" %.4fg",[motion userAcceleration].z];
+    self.accX.text = [NSString stringWithFormat:@" %.3fg",[motion userAcceleration].x];
+    self.accY.text = [NSString stringWithFormat:@" %.3fg",[motion userAcceleration].y];
+    self.accZ.text = [NSString stringWithFormat:@" %.3fg",[motion userAcceleration].z];
+    
+    
+
     
 //    self.accY.text = [NSString stringWithFormat:@" %.2fg",[motion gravity]];
+    if(_capturing)
+    {
+        accel_point_t accel_point;
+        accel_point.x = [motion userAcceleration].x;
+        accel_point.y = [motion userAcceleration].y;
+        accel_point.z = [motion userAcceleration].z;
+        
+        rotation_point_t rotation_point;
+        rotation_point.x = [motion attitude].pitch;
+        rotation_point.y = [motion attitude].roll;
+        rotation_point.z = [motion attitude].yaw;
+        
+        //[_accel_FIFO enqueue:[NSValue valueWithBytes:&accel_point objCType:@encode(accel_point_t)]];
+        //[_rotat_FIFO enqueue:[NSValue valueWithBytes:&rotation_point objCType:@encode(rotation_point_t)]];
+        float adjusted_accel = ([motion userAcceleration].z)/9.806;
+        NSNumber *sample = [NSNumber numberWithFloat:adjusted_accel];
+        [_accel_FIFO addObject:sample];
+        
+    }
     
 }
 
@@ -97,15 +119,39 @@
     
 }
 
-- (IBAction)resetMaxValues:(id)sender
+- (IBAction)integrator:(id)sender
 {
-    _accelX = 0;
-    _accelY = 0;
-    _accelZ = 0;
-    
-    _rotX = 0;
-    _rotY = 0;
-    _rotZ = 0;
+    UIButton *selectedButton = (UIButton *)sender;
+   if(_capturing)
+   {
+       //then stop capturing
+       _capturing = false;
+       //double integrate
+       float sample_sum = 0.0;
+       NSMutableArray * integral = [NSMutableArray array];
+       for( NSNumber* sample in _accel_FIFO)
+       {
+           sample_sum += SAMPLING_PERIOD*[sample floatValue]*100;
+           [integral addObject:[NSNumber numberWithFloat:sample_sum]];
+       }
+       sample_sum = 0;
+       for( NSNumber* sample in integral)
+       {
+           sample_sum += SAMPLING_PERIOD*[sample floatValue];
+       }
+       
+       self.rotZ.text = [NSString stringWithFormat:@" %.4fcm",sample_sum];
+       [_accel_FIFO removeAllObjects];
+       
+       [selectedButton setTitle:NSLocalizedString(@"Start", nil) forState:0];
+   }
+   else
+   {
+       //then start capturing
+       _capturing = true;
+       [selectedButton setTitle:NSLocalizedString(@"Stop", nil) forState:0];
+       
+   }
     
 }
 
@@ -160,7 +206,7 @@
     _motionManager = [[CMMotionManager alloc] init];
     //_motionManager.accelerometerUpdateInterval = .2;
     //_motionManager.gyroUpdateInterval = .05;
-    _motionManager.deviceMotionUpdateInterval = .05;
+    _motionManager.deviceMotionUpdateInterval = SAMPLING_PERIOD;
     
     
     //Create lambda functions ("blocks" in objective C) to set as the actual handlers for the queues. These \
@@ -187,8 +233,10 @@
 - (void)viewDidLoad
 {
     //Called after the controller's view is loaded into memory
-    
     [super viewDidLoad];
+    _capturing = false;
+    _accel_FIFO = [[NSMutableArray alloc] init];
+    _rotat_FIFO = [[NSMutableArray alloc] init];
     [self ConfigMotionSensors];
     
 }

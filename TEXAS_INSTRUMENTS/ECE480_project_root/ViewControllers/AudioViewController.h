@@ -34,13 +34,21 @@
 // return min value for given values
 #define min(a, b) (((a) < (b)) ? (a) : (b))
 
+
+
+
+//Output settings
+#define OUT_SAMPLE_RATE 500000.00 //441000.00
 #define kOutputBus 0
+
+//Input settings
+#define BYTES_PER_BLOCK 32
+#define IN_SAMPLE_TYPE SInt16
+#define IN_SAMPLE_RATE 12120.00 //set to four times the baud rate of the incoming temperature data
 #define kInputBus 1
 
-// our default sample rate
-#define OUT_SAMPLE_RATE 500000.00 //441000.00
-#define IN_SAMPLE_RATE 2960.00 //set to four times the baud rate of the incoming temperature data
 
+//old, delete these
 #define FREQUENCY 1000
 //#define SAMPLE_RATE 44100
 #define DURATION 50.0
@@ -123,7 +131,7 @@ typedef struct
 //Audio Streaming input
 
 -(void)initializeAudio;
--(void)processBuffer: (AudioBufferList*) audioBufferList;
+-(void)processBuffer: (AudioBuffer*) audioBuffer;
 
 // control object
 -(void)start;
@@ -140,7 +148,7 @@ typedef struct
 
 
 //Stuff from application online
--(void) stop;
+//-(void) stop;
 
 - (BOOL)getFilename:(char*)buffer maxLenth:(int)maxBufferLength;
 - (void)setupAudioFormat:(AudioStreamBasicDescription*)format;

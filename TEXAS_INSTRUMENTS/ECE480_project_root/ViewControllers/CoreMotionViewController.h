@@ -10,6 +10,7 @@
 #import "queue.h"
 #import <CoreMotion/CoreMotion.h>
 
+#define SAMPLING_PERIOD .2
 typedef struct {
     NSTimeInterval delta;
     int x;
@@ -40,6 +41,7 @@ typedef struct {
 @property (nonatomic) double currentMaxRotZ;
 
 @property (atomic) CGFloat axial_displacement,depth;
+@property (nonatomic) bool capturing;
 
 
 @property (strong, nonatomic) IBOutlet UILabel *accX;
@@ -58,7 +60,7 @@ typedef struct {
 @property (strong, nonatomic) IBOutlet UILabel *maxRotY;
 @property (strong, nonatomic) IBOutlet UILabel *maxRotZ;
 
-- (IBAction)resetMaxValues:(id)sender;
+- (IBAction)integrator:(id)sender;
 
 @property (strong, nonatomic) CMMotionManager *motionManager;
 

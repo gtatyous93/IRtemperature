@@ -143,11 +143,12 @@ OSStatus recordingCallback(void *inRefCon,
      on this point we define the number of channels, which is mono
      for the iphone. the number of frames is usally 512 or 1024.
      */
-    buffer.mDataByteSize = inNumberFrames * 2; // sample size
+    buffer.mDataByteSize = inNumberFrames * sizeof(IN_SAMPLE_TYPE) ; // sample size
     buffer.mNumberChannels = 1; // one channel
-    buffer.mData = malloc( inNumberFrames * 2 ); // buffer size
+    buffer.mData = malloc( inNumberFrames * sizeof(IN_SAMPLE_TYPE) ); // buffer size
     
     // we put our buffer into a bufferlist array for rendering
+    /*
     AudioBufferList bufferList;
     bufferList.mNumberBuffers = 1;
     bufferList.mBuffers[0] = buffer;
@@ -157,14 +158,18 @@ OSStatus recordingCallback(void *inRefCon,
     //[viewController hasError:status:__FILE__:__LINE__];
     
     // process the bufferlist in the audio processor
-    [viewController processBuffer:&bufferList];
+    */
+     [viewController processBuffer:&buffer];
+    
+    
+    
     
     // clean up the buffer
-
+    
 
 //    int thingie = bufferList.mBuffers[0].mData;
 //    if (thingie)   [viewController frequencyLabel].text = [NSString stringWithFormat:@"%i",thingie];
-    free(bufferList.mBuffers[0].mData);
+    //free(bufferList.mBuffers[0].mData);
     
     return noErr;
 }
@@ -288,17 +293,19 @@ void ToneInterruptionListener(void *inClientData, UInt32 inInterruptionState)
      
      We want 16 bits, 2 bytes per packet/frames at 44khz
      */
-    /*
+
+    
     AudioStreamBasicDescription audioFormat;
-    audioFormat.mSampleRate         = SAMPLE_RATE;
+    audioFormat.mSampleRate         = IN_SAMPLE_RATE;
     audioFormat.mFormatID           = kAudioFormatLinearPCM;
     audioFormat.mFormatFlags        = kAudioFormatFlagIsPacked | kAudioFormatFlagIsSignedInteger;
     audioFormat.mFramesPerPacket    = 1;
     audioFormat.mChannelsPerFrame   = 1;
-    audioFormat.mBitsPerChannel     = 16;
-    audioFormat.mBytesPerPacket     = 2;
-    audioFormat.mBytesPerFrame      = 2;
-     */
+    audioFormat.mBitsPerChannel     = 8*sizeof(IN_SAMPLE_TYPE);//16;
+    audioFormat.mBytesPerPacket     = sizeof(IN_SAMPLE_TYPE);//2;
+    audioFormat.mBytesPerFrame      = sizeof(IN_SAMPLE_TYPE);//2;
+     
+    /*
     AudioStreamBasicDescription audioFormat;
     audioFormat.mSampleRate         = IN_SAMPLE_RATE;
     audioFormat.mFormatID           = kAudioFormatLinearPCM;
@@ -308,7 +315,7 @@ void ToneInterruptionListener(void *inClientData, UInt32 inInterruptionState)
     audioFormat.mBytesPerFrame      = 1;
     audioFormat.mChannelsPerFrame   = 1;
     audioFormat.mBitsPerChannel     = 32;
-    
+    */
     // set the format on the output stream
     
     status = AudioUnitSetProperty(audioUnit,
@@ -390,9 +397,10 @@ void ToneInterruptionListener(void *inClientData, UInt32 inInterruptionState)
      we set the number of channels to mono and allocate our block size to
      1024 bytes.
      */
+
     audioBuffer.mNumberChannels = 1;
-    audioBuffer.mDataByteSize = 512 * 2;
-    audioBuffer.mData = malloc( 512 * 2 );
+    audioBuffer.mDataByteSize = BYTES_PER_BLOCK;
+    audioBuffer.mData = malloc( BYTES_PER_BLOCK );
     
     // Initialize the Audio Unit and cross fingers =)
  
@@ -405,6 +413,7 @@ void ToneInterruptionListener(void *inClientData, UInt32 inInterruptionState)
 
 #pragma mark processing
 
+/*
 -(void)processBuffer: (AudioBufferList*) audioBufferList
 {
     AudioBuffer sourceBuffer = audioBufferList->mBuffers[0];
@@ -417,18 +426,63 @@ void ToneInterruptionListener(void *inClientData, UInt32 inInterruptionState)
         audioBuffer.mDataByteSize = sourceBuffer.mDataByteSize;
         audioBuffer.mData = malloc(sourceBuffer.mDataByteSize);
     }
+ */
+-(void)processBuffer:(AudioBuffer*) audioBuffer
+{
     
     [[NSOperationQueue mainQueue] addOperationWithBlock:^ {
+        //Type must match packet size
+        int bit_index = 32;
+        IN_SAMPLE_TYPE *editBuffer = audioBuffer->mData;
+        NSMutableArray *myarray = [[NSMutableArray alloc] init];
         
-        int data_sample = audioBufferList->mBuffers[0].mData;
+        // loop over every packet
+        for (int nb = 0; nb < (audioBuffer->mDataByteSize / 2); nb++) {
+            
+            // we check if the gain has been modified to save resoures
+            if (_gain != 0) {
+                // we need more accuracy in our calculation so we calculate with doubles
+                double gainSample = ((double)editBuffer[nb])/32767.0;
+                //our signal range cant be higher or lesser -1.0/1.0 for playback example
+                gainSample = (gainSample < -1.0) ? -1.0 : (gainSample > 1.0) ? 1.0 : gainSample;
+                // multiply the new signal back to short
+                gainSample = gainSample * 32767.0;
+                // write calculate sample back to the buffer
+                //            editBuffer[nb] = (SInt16)gainSample;
+                if(editBuffer[nb] > 0)
+                {
+                    _current_sample |=  1 << bit_index;
+                }
+                bit_index--;
+                if(bit_index <= 0)
+                {
+                    
+                    bit_index = 32;
+                    sampleLabel.text = [NSString stringWithFormat:@"%x",_current_sample];
+                    _current_sample = 0;
+                }
+                [myarray addObject:[NSNumber numberWithInt:editBuffer[nb]]];
+            }
+        }
+        bit_index = 0;
+        [myarray removeAllObjects];
+        
+    }];
+
+}
+/*
+ 
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^ {
+        
+        int *data_sample = audioBufferList->mBuffers[0].mData;
         //00 2a 44 16, 00 f6 c2 16,
         //             00 e2 1f 18,
         //82 59, c4 13, c4 91, 00 00
         
-        data_sample = (data_sample&0x00FFFF00) >> 8;
-        _min_sample = MIN(_min_sample,data_sample);
-        _max_sample = MAX(_min_sample,data_sample);
-        _mid_voltage = (_max_sample - _min_sample)/2;
+        //data_sample = (data_sample&0x00FFFF00) >> 8;
+//        _min_sample = MIN(_min_sample,data_sample);
+//        _max_sample = MAX(_min_sample,data_sample);
+//        _mid_voltage = (_max_sample - _min_sample)/2;
         
         if(_current_sample_index ==0) {
             _current_sample_index = 31;
@@ -450,7 +504,7 @@ void ToneInterruptionListener(void *inClientData, UInt32 inInterruptionState)
         //NSLog(@"Main Thread Code");
         
     }];
-    
+    */
     
     
     /**
@@ -458,58 +512,51 @@ void ToneInterruptionListener(void *inClientData, UInt32 inInterruptionState)
      In my example this is a simple input volume gain.
      iOS 5 has this on board now, but as example quite good.
      */
-    SInt16 *editBuffer = audioBufferList->mBuffers[0].mData;
-    
-    // loop over every packet
-    for (int nb = 0; nb < (audioBufferList->mBuffers[0].mDataByteSize / 2); nb++) {
+    /*
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^ {
+        //Type must match packet size
+        int bit_index = 32;
+        IN_SAMPLE_TYPE *editBuffer = audioBufferList->mBuffers[0].mData;
+        NSMutableArray *myarray = [[NSMutableArray alloc] init];
         
-        // we check if the gain has been modified to save resoures
-        if (_gain != 0) {
-            // we need more accuracy in our calculation so we calculate with doubles
-            double gainSample = ((double)editBuffer[nb]) / 32767.0;
+        // loop over every packet
+        for (int nb = 0; nb < (audioBufferList->mBuffers[0].mDataByteSize / 2); nb++) {
             
-            /*
-             at this point we multiply with our gain factor
-             we dont make a addition to prevent generation of sound where no sound is.
-             
-             no noise
-             0*10=0
-             
-             noise if zero
-             0+10=10
-             */
-            gainSample *= _gain;
-            
-            /**
-             our signal range cant be higher or lesser -1.0/1.0
-             we prevent that the signal got outside our range
-             */
-            gainSample = (gainSample < -1.0) ? -1.0 : (gainSample > 1.0) ? 1.0 : gainSample;
-            
-            /*
-             This thing here is a little helper to shape our incoming wave.
-             The sound gets pretty warm and better and the noise is reduced a lot.
-             Feel free to outcomment this line and here again.
-             
-             You can see here what happens here http://silentmatt.com/javascript-function-plotter/
-             Copy this to the command line and hit enter: plot y=(1.5*x)-0.5*x*x*x
-             */
-            
-            gainSample = (1.5 * gainSample) - 0.5 * gainSample * gainSample * gainSample;
-            
-            // multiply the new signal back to short
-            gainSample = gainSample * 32767.0;
-            
-            // write calculate sample back to the buffer
-            editBuffer[nb] = (SInt16)gainSample;
+            // we check if the gain has been modified to save resoures
+            if (_gain != 0) {
+                // we need more accuracy in our calculation so we calculate with doubles
+                double gainSample = ((double)editBuffer[nb])/32767.0;
+                 //our signal range cant be higher or lesser -1.0/1.0 for playback example
+                gainSample = (gainSample < -1.0) ? -1.0 : (gainSample > 1.0) ? 1.0 : gainSample;
+                // multiply the new signal back to short
+                gainSample = gainSample * 32767.0;
+                // write calculate sample back to the buffer
+    //            editBuffer[nb] = (SInt16)gainSample;
+                if(editBuffer[nb] > 0)
+                {
+                    _current_sample |=  1 << bit_index;
+                }
+                bit_index--;
+                if(bit_index <= 0)
+                {
+                    
+                    bit_index = 32;
+                    sampleLabel.text = [NSString stringWithFormat:@"%x",_current_sample];
+                    _current_sample = 0;
+                }
+                [myarray addObject:[NSNumber numberWithInt:editBuffer[nb]]];
+            }
         }
-    }
-    
+        bit_index = 0;
+        [myarray removeAllObjects];
+        
+    }];
     // copy incoming audio data to the audio buffer
     
     //memcpy(audioBuffer.mData, audioBufferList->mBuffers[0].mData, audioBufferList->mBuffers[0].mDataByteSize);
     
 }
+     */
 
 
 

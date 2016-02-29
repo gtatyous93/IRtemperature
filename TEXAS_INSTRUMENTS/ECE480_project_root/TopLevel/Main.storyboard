@@ -319,6 +319,9 @@
                                 <rect key="frame" x="26" y="295" width="34" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <state key="normal" title="Start"/>
+                                <connections>
+                                    <action selector="integrator:" destination="lA6-x7-Fl0" eventType="touchUpInside" id="3nd-Kh-SGa"/>
+                                </connections>
                             </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
