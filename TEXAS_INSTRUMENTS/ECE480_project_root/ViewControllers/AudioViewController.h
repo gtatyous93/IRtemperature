@@ -44,7 +44,7 @@
 //Input settings
 #define BYTES_PER_BLOCK 32
 #define IN_SAMPLE_TYPE SInt16
-#define IN_SAMPLE_RATE 12120.00 //set to four times the baud rate of the incoming temperature data
+#define IN_SAMPLE_RATE 6060//12120.00 //set to four times the baud rate of the incoming temperature data
 #define kInputBus 1
 
 
@@ -97,6 +97,7 @@ typedef struct
     AudioComponentInstance toneUnit;
     
 @public
+    double threshold;
     double frequency;
     double sampleRate;
     double theta;
@@ -126,6 +127,7 @@ typedef struct
 
 @property (nonatomic) int current_sample_index;
 @property (nonatomic) int current_sample;
+@property (atomic) NSString* string_sample;
 
 
 //Audio Streaming input

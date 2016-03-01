@@ -88,9 +88,45 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
      
      }
      */
-    
+    [self drawme];
 }
 
+- (void)drawme {
+    
+    /*
+    [trianglePath moveToPoint:CGPointMake(0, [[_widths objectAtIndex:0] doubleValue])];
+    [trianglePath addLineToPoint:CGPointMake([[_widths objectAtIndex:0] doubleValue],[[_widths objectAtIndex:1] doubleValue])];
+    [trianglePath addLineToPoint:CGPointMake([[_widths objectAtIndex:1] doubleValue], [[_widths objectAtIndex:2] doubleValue])];
+    [trianglePath closePath];
+     */
+    
+    
+    _drawLayer.frame = CGRectMake (0, 0,self.view.bounds.size.height,self.view.bounds.size.width);
+    _drawLayer.path = (__bridge CGPathRef _Nullable)(_trianglePath);
+    _drawLayer.lineWidth = 3.0f;
+    _drawLayer.strokeColor = [UIColor blackColor].CGColor;
+    _drawLayer.fillColor = [UIColor clearColor].CGColor;
+    
+    
+    [self.cameraPreviewView.layer addSublayer:_drawLayer];
+    
+    //_trianglePath.lineWidth = 5;
+    //[_trianglePath fill];
+    //[_trianglePath stroke];
+    //[self.previewLayer insertSublayer: _drawLayer atIndex:0];
+    //[[self drawLayer] setNeedsDisplay];
+    //[self.drawLayer setNeedsDisplay];
+    //triangleMaskLayer;
+}
+
+//delegate function that draws to a CALayer
+- (void)drawLayer:(CALayer*)layer inContext:(CGContextRef)ctx {
+    NSLog(@"hello layer!");
+    
+//    CGContextFillRect(ctx, _drawLayer.frame);
+//    CGContextSetRGBFillColor (ctx, 1, 0, 0, 1);
+//    CGContextFillRect (ctx, CGRectMake (0, 0, 100, 100 ));
+}
 
 // Create a UIImage from sample buffer data
 - (CIImage *) imageFromSampleBuffer:(CMSampleBufferRef) sampleBuffer
@@ -167,7 +203,10 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     for(CIFaceFeature* faceFeature in features)
     {
         // get the width of feature pairs on the face
-        
+        [_trianglePath moveToPoint:CGPointMake(faceFeature.leftEyePosition.x, faceFeature.leftEyePosition.y)];
+        [_trianglePath addLineToPoint:CGPointMake(faceFeature.rightEyePosition.x, faceFeature.rightEyePosition.y)];
+        [_trianglePath addLineToPoint:CGPointMake(faceFeature.mouthPosition.x,faceFeature.mouthPosition.y)];
+        [_trianglePath closePath];
         if(faceFeature.hasLeftEyePosition && faceFeature.hasRightEyePosition)
         {
             [_widths replaceObjectAtIndex:0 withObject:[NSNumber numberWithFloat:sqrt(pow((faceFeature.leftEyePosition.x -  faceFeature.rightEyePosition.x),2) + pow((faceFeature.leftEyePosition.y -  faceFeature.rightEyePosition.y),2))]];
@@ -187,6 +226,20 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
             NSLog(@"captureOutput: didOutputSampleBufferFromConnection");
         }
         [_widths replaceObjectAtIndex:3 withObject:[NSNumber numberWithFloat:faceFeature.bounds.size.width]];
+        
+        //Calculate area
+        if(faceFeature.hasLeftEyePosition && faceFeature.hasMouthPosition && faceFeature.hasRightEyePosition)
+        {
+            float a,b,c,d;
+            a = faceFeature.rightEyePosition.x - faceFeature.mouthPosition.x;
+            b = faceFeature.rightEyePosition.y - faceFeature.mouthPosition.y;
+            c = faceFeature.leftEyePosition.x - faceFeature.mouthPosition.x;
+            d = faceFeature.leftEyePosition.y - faceFeature.mouthPosition.x;
+            _widths[3] = [NSNumber numberWithFloat:fabsf((a*d) - (b*c))/2];
+            
+            
+        }
+
         //_widths[3] = [NSNumber numberWithFloat:faceFeature.bounds.size.width];
         
         
@@ -243,6 +296,14 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     
     //-- Add the layer to the view that should display the camera input
     [self.cameraPreviewView.layer addSublayer:_previewLayer];
+    
+    
+    self.drawLayer = [CAShapeLayer layer];
+    CGRect parentBox = [self.cameraPreviewView frame];
+    [self.drawLayer setFrame:parentBox];
+    [self.drawLayer setDelegate:self];
+    [self.drawLayer setNeedsDisplay];
+    [self.cameraPreviewView.layer addSublayer:self.drawLayer];
     
     //Set minFrameDuration to cap framerate
     if ( [_captureSession canAddOutput:videoOutput] ) [_captureSession addOutput:videoOutput];
@@ -304,6 +365,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     
     [super viewDidLoad];
     _widths = [NSMutableArray arrayWithCapacity:4];
+    _trianglePath = [UIBezierPath bezierPath];
     while([_widths count] < 4)
     {
         [_widths addObject:[NSNumber numberWithFloat: 1.0]];

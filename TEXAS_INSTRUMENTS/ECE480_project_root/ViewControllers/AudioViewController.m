@@ -432,7 +432,6 @@ void ToneInterruptionListener(void *inClientData, UInt32 inInterruptionState)
     
     [[NSOperationQueue mainQueue] addOperationWithBlock:^ {
         //Type must match packet size
-        int bit_index = 32;
         IN_SAMPLE_TYPE *editBuffer = audioBuffer->mData;
         NSMutableArray *myarray = [[NSMutableArray alloc] init];
         
@@ -449,22 +448,27 @@ void ToneInterruptionListener(void *inClientData, UInt32 inInterruptionState)
                 gainSample = gainSample * 32767.0;
                 // write calculate sample back to the buffer
                 //            editBuffer[nb] = (SInt16)gainSample;
-                if(editBuffer[nb] > 0)
-                {
-                    _current_sample |=  1 << bit_index;
-                }
-                bit_index--;
-                if(bit_index <= 0)
+               
+                
+                if(_current_sample_index <= 0)
                 {
                     
-                    bit_index = 32;
-                    sampleLabel.text = [NSString stringWithFormat:@"%x",_current_sample];
-                    _current_sample = 0;
+                    //_current_sample_index = 32;
+                    _string_sample = [_string_sample substringFromIndex:1];
+                    sampleLabel.text = _string_sample;//[NSString stringWithFormat:@"%x",_current_sample];
+                    //_current_sample = 0;
+                    //_string_sample = @"";
                 }
+                else _current_sample_index--;
+                if(editBuffer[nb] > threshold)
+                {
+                    //_current_sample |=  1 << _current_sample_index;
+                    _string_sample = [_string_sample stringByAppendingString:@"1"];
+                }
+                else _string_sample = [_string_sample stringByAppendingString:@"0"];
                 [myarray addObject:[NSNumber numberWithInt:editBuffer[nb]]];
             }
         }
-        bit_index = 0;
         [myarray removeAllObjects];
         
     }];
@@ -571,11 +575,12 @@ void ToneInterruptionListener(void *inClientData, UInt32 inInterruptionState)
 - (IBAction)sliderChanged:(id)sender
 {
     UISlider * slider = (UISlider *)sender;
+    threshold = 0.01*(slider.value - .5);
 //    frequency = 15000 + 10000*(slider.value - 0.5);
 //    if(slider.value > .5) frequency = 100000*slider.value;
 //    else    frequency = (10000*slider.value);
-    frequencyLabel.text = [NSString stringWithFormat:@"%4.1f Hz", frequency];
-    sampleLabel.text =[NSString stringWithFormat:@"%4.1f Hz", frequency];
+    frequencyLabel.text = [NSString stringWithFormat:@"%4.4f", threshold];
+    //sampleLabel.text =[NSString stringWithFormat:@"%4.1f Hz", frequency];
 }
 
 - (void)createToneUnit
@@ -697,6 +702,7 @@ void ToneInterruptionListener(void *inClientData, UInt32 inInterruptionState)
     
     [self initializeAudio]; //input stream
     
+    _string_sample = @"";
     frequency = 18000;
     _current_sample_index = 31;
     _gain = 1;

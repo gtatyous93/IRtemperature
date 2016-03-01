@@ -15,6 +15,9 @@
 @interface CameraViewController : UIViewController
 
 @property (nonatomic) AVCaptureVideoPreviewLayer * previewLayer;
+@property (nonatomic) CAShapeLayer * drawLayer;
+@property (nonatomic) UIBezierPath* trianglePath;
+
 @property (nonatomic) AVCaptureSession * captureSession;
 @property (strong,atomic) NSMutableArray *widths,*previous_widths;
 @property (atomic) CGFloat delta_width;
@@ -38,7 +41,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
        fromConnection:(AVCaptureConnection *)connection;
 
 -(void) setupCaptureSession;
-
+- (void)drawme ;
 
 @end
 
