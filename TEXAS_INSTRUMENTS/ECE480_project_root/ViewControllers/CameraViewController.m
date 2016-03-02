@@ -11,6 +11,14 @@
 @import Foundation;
 
 
+FacialPoints trianglePoints;
+
+float counter_guy = 0;
+int offsetX = 340;
+int offsetY = 380;
+float scalex = .75;
+float scaley = .75;
+
 @implementation CameraViewController
 
 
@@ -37,7 +45,9 @@
 didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
        fromConnection:(AVCaptureConnection *)connection
 {
-    NSLog(@"captureOutput: didOutputSampleBufferFromConnection");
+    connection.videoOrientation = AVCaptureVideoOrientationPortrait;
+    //NSLog(@"captureOutput: didOutputSampleBufferFromConnection");
+    
     //NSNumber* zero = 0;
     // Create a UIImage from the sample buffer data
     CIImage *image = [self imageFromSampleBuffer:sampleBuffer];
@@ -50,7 +60,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     //_depth = [self calculate_depth:_delta_width withDisplacement:_axial_displacement];
     
     [[NSOperationQueue mainQueue] addOperationWithBlock:^ {
-        
+        [self drawme];
         if(face_test) _face_bool.text = @"Face detected";
         else _face_bool.text = @"No face";
         
@@ -62,76 +72,123 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
         //NSLog(@"Main Thread Code");
         
     }];    /*
-     
-     //Update previous_widths
-     for (NSNumber* width_reading in _widths) //iterate through LE_RE, RE_M, LE_M, facewidth
-     {
-     if ([width_reading compare:zero]) //reset case: measured width feature was reset
-     {
-     //reset state information about previous reading
-     
-     [_previous_widths replaceObjectAtIndex:[_widths indexOfObject:width_reading]withObject:zero];
-     
-     }
-     else
-     {
-     
-     //previous_widths should have the same size as
-     
-     //determine the difference in width for this feature from the previous capture
-     NSNumber *new_num = [NSNumber numberWithFloat:
-     [width_reading floatValue] -
-     [[ _previous_widths objectAtIndex:[_widths indexOfObject:width_reading] ] floatValue] ];
-     
-     [_previous_widths replaceObjectAtIndex:[_widths indexOfObject:width_reading]withObject:new_num];
-     }
-     
-     }
-     */
-    [self drawme];
+            
+            //Update previous_widths
+            for (NSNumber* width_reading in _widths) //iterate through LE_RE, RE_M, LE_M, facewidth
+            {
+            if ([width_reading compare:zero]) //reset case: measured width feature was reset
+            {
+            //reset state information about previous reading
+            
+            [_previous_widths replaceObjectAtIndex:[_widths indexOfObject:width_reading]withObject:zero];
+            
+            }
+            else
+            {
+            
+            //previous_widths should have the same size as
+            
+            //determine the difference in width for this feature from the previous capture
+            NSNumber *new_num = [NSNumber numberWithFloat:
+            [width_reading floatValue] -
+            [[ _previous_widths objectAtIndex:[_widths indexOfObject:width_reading] ] floatValue] ];
+            
+            [_previous_widths replaceObjectAtIndex:[_widths indexOfObject:width_reading]withObject:new_num];
+            }
+            
+            }
+            */
+    //[self.drawLayer setNeedsDisplay];
+
+    /*
+    if(trianglePoints.valid){
+        CGContextRef ctx = UIGraphicsGetCurrentContext();
+        CGContextBeginPath(ctx);
+        
+        CGContextMoveToPoint(ctx, trianglePoints.LE_x, trianglePoints.LE_y);
+        
+        CGContextAddLineToPoint(ctx, trianglePoints.RE_x, trianglePoints.RE_y);
+        
+        CGContextAddLineToPoint(ctx, trianglePoints.Mouth_x, trianglePoints.Mouth_y);
+        
+        CGContextClosePath(ctx);
+        CGContextDrawPath(ctx, kCGPathFillStroke);
+    }
+    */
+    
+    
+}
+- (void)drawLayer:(CALayer*)layer inContext:(CGContextRef)ctx {
+    NSLog(@"drawing some shapes!");
+
+    //ctx = UIGraphicsGetCurrentContext();
+    if(trianglePoints.valid){
+        NSLog(@"TRIANGLE!");
+        
+        UIColor *color1 = [UIColor colorWithRed:0/255.0 green:255/255.0 blue:255/255.0 alpha:0.5];
+       //  CGContextSetFillColor(ctx, CGColorGetComponents([UIColor greenColor].CGColor));
+//        CGContextSetStrokeColor(ctx, CGColorGetComponents([UIColor redColor].CGColor));
+        
+        CGContextBeginPath(ctx);
+        CGContextMoveToPoint(ctx, (offsetX-scalex*trianglePoints.LE_x), (offsetY-scaley*trianglePoints.LE_y));
+        CGContextAddLineToPoint(ctx, (offsetX-scalex*trianglePoints.RE_x), (offsetY-scaley*trianglePoints.RE_y));
+        CGContextAddLineToPoint(ctx, (offsetX-scalex*trianglePoints.Mouth_x), (offsetY-scaley*trianglePoints.Mouth_y));
+        CGContextClosePath(ctx);
+
+        CGContextSetFillColor(ctx, CGColorGetComponents(color1.CGColor));
+        CGContextDrawPath(ctx, kCGPathFill);
+    }
+    
+    //CGContextSetRGBFillColor (ctx, 1, 0, 0, 1);
+    //CGContextFillRect (ctx, CGRectMake (0, 0, 100, 100 ));
 }
 
 - (void)drawme {
+    NSLog(@"drawme");
     
+    //[[self drawLayer] setNeedsDisplay];
+    
+    [self.drawLayer setNeedsDisplay];
     /*
-    [trianglePath moveToPoint:CGPointMake(0, [[_widths objectAtIndex:0] doubleValue])];
-    [trianglePath addLineToPoint:CGPointMake([[_widths objectAtIndex:0] doubleValue],[[_widths objectAtIndex:1] doubleValue])];
-    [trianglePath addLineToPoint:CGPointMake([[_widths objectAtIndex:1] doubleValue], [[_widths objectAtIndex:2] doubleValue])];
-    [trianglePath closePath];
+     [trianglePath moveToPoint:CGPointMake(0, [[_widths objectAtIndex:0] doubleValue])];
+     [trianglePath addLineToPoint:CGPointMake([[_widths objectAtIndex:0] doubleValue],[[_widths objectAtIndex:1] doubleValue])];
+     [trianglePath addLineToPoint:CGPointMake([[_widths objectAtIndex:1] doubleValue], [[_widths objectAtIndex:2] doubleValue])];
+     [trianglePath closePath];
      */
     
-    
-    _drawLayer.frame = CGRectMake (0, 0,self.view.bounds.size.height,self.view.bounds.size.width);
-    _drawLayer.path = (__bridge CGPathRef _Nullable)(_trianglePath);
-    _drawLayer.lineWidth = 3.0f;
-    _drawLayer.strokeColor = [UIColor blackColor].CGColor;
-    _drawLayer.fillColor = [UIColor clearColor].CGColor;
-    
-    
-    [self.cameraPreviewView.layer addSublayer:_drawLayer];
+    /*
+     _drawLayer.frame = CGRectMake (0, 0,self.view.bounds.size.height,self.view.bounds.size.width);
+     _drawLayer.path = (__bridge CGPathRef _Nullable)(_trianglePath);
+     _drawLayer.lineWidth = 3.0f;
+     _drawLayer.strokeColor = [UIColor blackColor].CGColor;
+     _drawLayer.fillColor = [UIColor clearColor].CGColor;
+     
+     [self.cameraPreviewView.layer addSublayer:_drawLayer];
+     */
     
     //_trianglePath.lineWidth = 5;
     //[_trianglePath fill];
     //[_trianglePath stroke];
     //[self.previewLayer insertSublayer: _drawLayer atIndex:0];
-    //[[self drawLayer] setNeedsDisplay];
-    //[self.drawLayer setNeedsDisplay];
+    
+    
     //triangleMaskLayer;
 }
-
-//delegate function that draws to a CALayer
-- (void)drawLayer:(CALayer*)layer inContext:(CGContextRef)ctx {
-    NSLog(@"hello layer!");
+- (UIImage*)rotateUIImage:(UIImage*)sourceImage clockwise:(BOOL)clockwise
+{
+    CGSize size = sourceImage.size;
+    UIGraphicsBeginImageContext(CGSizeMake(size.height, size.width));
+    [[UIImage imageWithCGImage:[sourceImage CGImage] scale:1.0 orientation:clockwise ? UIImageOrientationRight : UIImageOrientationLeft] drawInRect:CGRectMake(0,0,size.height ,size.width)];
+    UIImage* newImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
     
-//    CGContextFillRect(ctx, _drawLayer.frame);
-//    CGContextSetRGBFillColor (ctx, 1, 0, 0, 1);
-//    CGContextFillRect (ctx, CGRectMake (0, 0, 100, 100 ));
+    return newImage;
 }
 
 // Create a UIImage from sample buffer data
 - (CIImage *) imageFromSampleBuffer:(CMSampleBufferRef) sampleBuffer
 {
-    NSLog(@"imageFromSampleBuffer: called");
+    //NSLog(@"imageFromSampleBuffer: called");
     // Get a CMSampleBuffer's Core Video image buffer for the media data
     CVImageBufferRef imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
     // Lock the base address of the pixel buffer
@@ -165,11 +222,14 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     // Create an image object from the Quartz image
     CIImage *image = [CIImage imageWithCGImage:quartzImage];
     
-    CGAffineTransform ta = CGAffineTransformMakeRotation( 1.0 / 20.0 * M_PI );
-    //[image setTransform:CGAffineTransformMakeRotation(degreesToRadians(90))];
     
-    CIFilter *f = [CIFilter filterWithName:@"CIAffineTransform"];
-    CIFilter *filter1 = [CIFilter filterWithName:@"CIAffineTransform" keysAndValues:@"inputImage", image, nil];
+    int orient = UIImageOrientationUpMirrored;
+    UIImage *uiImage = [[UIImage alloc] initWithCIImage:image scale:1 orientation:orient];
+    [self rotateUIImage:uiImage clockwise:false];
+
+    //uiImage = [self rotate:uiImage andOrientation:UIImageOrientationUp];
+    
+    image = uiImage.CIImage;
     
     // Release the Quartz image
     CGImageRelease(quartzImage);
@@ -181,16 +241,17 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 {
     //Perform image analysis on a still image. This is used in conjunction with the video frame buffer handler (captureOutput)
     //CIImage* image = [CIImage imageWithCGImage:facePicture.image.CGImage]; //extract frames from video?
-
+    
     CIImage * image = frame_sample;// = [frame_sample CIImage];
     
     
     CIDetector* detector = [CIDetector detectorOfType:CIDetectorTypeFace
-                                              context:nil options:[NSDictionary dictionaryWithObject:CIDetectorAccuracyHigh forKey:CIDetectorAccuracy]];
+                                              context:nil options:[NSDictionary dictionaryWithObject:CIDetectorAccuracyLow forKey:CIDetectorAccuracy]];
     NSArray* features = [detector featuresInImage:image];
     ////
     _IBdepth.text = [NSString stringWithFormat:@" %@",_IBdepth];
-   
+    trianglePoints.valid = false;
+    trianglePoints.valid = false;
     if([features count] == 0) return false;
     
     //Clear array (for synchronization purposes.. see main loop logic)
@@ -199,37 +260,43 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
         zero = [NSNumber numberWithFloat: 0.0];
         [_widths replaceObjectAtIndex:i withObject:zero];
     }
+    
     // FeatureWidth_t current_feature;
     for(CIFaceFeature* faceFeature in features)
     {
         // get the width of feature pairs on the face
-        [_trianglePath moveToPoint:CGPointMake(faceFeature.leftEyePosition.x, faceFeature.leftEyePosition.y)];
-        [_trianglePath addLineToPoint:CGPointMake(faceFeature.rightEyePosition.x, faceFeature.rightEyePosition.y)];
-        [_trianglePath addLineToPoint:CGPointMake(faceFeature.mouthPosition.x,faceFeature.mouthPosition.y)];
-        [_trianglePath closePath];
+        
         if(faceFeature.hasLeftEyePosition && faceFeature.hasRightEyePosition)
         {
             [_widths replaceObjectAtIndex:0 withObject:[NSNumber numberWithFloat:sqrt(pow((faceFeature.leftEyePosition.x -  faceFeature.rightEyePosition.x),2) + pow((faceFeature.leftEyePosition.y -  faceFeature.rightEyePosition.y),2))]];
             //_widths[0] = [NSNumber numberWithFloat:sqrt(pow((faceFeature.leftEyePosition.x -  faceFeature.rightEyePosition.x),2) + pow((faceFeature.leftEyePosition.y -  faceFeature.rightEyePosition.y),2))];
-            NSLog(@"captureOutput: didOutputSampleBufferFromConnection");
+           
         }
         if(faceFeature.hasRightEyePosition && faceFeature.hasMouthPosition)
         {
             [_widths replaceObjectAtIndex:1 withObject:[NSNumber numberWithFloat:sqrt(pow((faceFeature.leftEyePosition.x -  faceFeature.rightEyePosition.x),2) + pow((faceFeature.leftEyePosition.y -  faceFeature.rightEyePosition.y),2)) ]];
             //_widths[1] = [NSNumber numberWithFloat:sqrt(pow((faceFeature.leftEyePosition.x -  faceFeature.rightEyePosition.x),2) + pow((faceFeature.leftEyePosition.y -  faceFeature.rightEyePosition.y),2)) ];
-            NSLog(@"captureOutput: didOutputSampleBufferFromConnection");
+           
         }
         if(faceFeature.hasLeftEyePosition && faceFeature.hasMouthPosition)
         {
             [_widths replaceObjectAtIndex:2 withObject:[NSNumber numberWithFloat:sqrt(pow((faceFeature.leftEyePosition.x -  faceFeature.mouthPosition.x),2) + pow((faceFeature.leftEyePosition.y -  faceFeature.mouthPosition.y),2)) ]];
             //_widths[2] = [NSNumber numberWithFloat:sqrt(pow((faceFeature.leftEyePosition.x -  faceFeature.mouthPosition.x),2) + pow((faceFeature.leftEyePosition.y -  faceFeature.mouthPosition.y),2)) ];
-            NSLog(@"captureOutput: didOutputSampleBufferFromConnection");
+            
         }
         [_widths replaceObjectAtIndex:3 withObject:[NSNumber numberWithFloat:faceFeature.bounds.size.width]];
         
         //Calculate area
         if(faceFeature.hasLeftEyePosition && faceFeature.hasMouthPosition && faceFeature.hasRightEyePosition)
         {
+            trianglePoints.valid = true;
+            trianglePoints.LE_x = faceFeature.leftEyePosition.x;
+            trianglePoints.LE_y = faceFeature.leftEyePosition.y;
+            trianglePoints.RE_x = faceFeature.rightEyePosition.x;
+            trianglePoints.RE_y = faceFeature.rightEyePosition.y;
+            trianglePoints.Mouth_x = faceFeature.mouthPosition.x;
+            trianglePoints.Mouth_y = faceFeature.mouthPosition.y;
+            
             float a,b,c,d;
             a = faceFeature.rightEyePosition.x - faceFeature.mouthPosition.x;
             b = faceFeature.rightEyePosition.y - faceFeature.mouthPosition.y;
@@ -239,13 +306,19 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
             
             
         }
-
+        
+        /*
+         [_trianglePath moveToPoint:CGPointMake(faceFeature.leftEyePosition.x, faceFeature.leftEyePosition.y)];
+         [_trianglePath addLineToPoint:CGPointMake(faceFeature.rightEyePosition.x, faceFeature.rightEyePosition.y)];
+         [_trianglePath addLineToPoint:CGPointMake(faceFeature.mouthPosition.x,faceFeature.mouthPosition.y)];
+         [_trianglePath closePath];
+         */
         //_widths[3] = [NSNumber numberWithFloat:faceFeature.bounds.size.width];
         
         
     }
     
-    
+    //trianglePoints = trianglePoints;
     return true;
     
     
@@ -265,12 +338,14 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
         if ([device position] == AVCaptureDevicePositionFront) backFacingCamera = device;
     }
     
+    
     // Create the capture session
     _captureSession = [[AVCaptureSession alloc] init];
     
     // Add the video input
     NSError *error = nil;
     AVCaptureDeviceInput* videoInput = [[AVCaptureDeviceInput alloc] initWithDevice:backFacingCamera error:&error];
+    
     if ([_captureSession canAddInput:videoInput]) [_captureSession addInput:videoInput];
     
     // Add the video frame output
@@ -299,7 +374,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     
     
     self.drawLayer = [CAShapeLayer layer];
-    CGRect parentBox = [self.cameraPreviewView frame];
+    CGRect parentBox = [_previewLayer frame];
     [self.drawLayer setFrame:parentBox];
     [self.drawLayer setDelegate:self];
     [self.drawLayer setNeedsDisplay];
@@ -366,12 +441,28 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     [super viewDidLoad];
     _widths = [NSMutableArray arrayWithCapacity:4];
     _trianglePath = [UIBezierPath bezierPath];
+    trianglePoints.valid = false;
+    trianglePoints.LE_x = 0;
+    trianglePoints.LE_y = 0;
+    trianglePoints.RE_x = 0;
+    trianglePoints.RE_y = 0;
+    trianglePoints.Mouth_x = 0;
+    trianglePoints.Mouth_y = 0;
+    counter_guy = 0;
     while([_widths count] < 4)
     {
         [_widths addObject:[NSNumber numberWithFloat: 1.0]];
     }
     [self setupCaptureSession ];
+    [self.drawLayer setNeedsDisplay];
+    [self.cameraPreviewView.layer addSublayer:self.drawLayer];
     
+    CGSize sizeOfCamera = _cameraPreviewView.layer.frame.size;
+    CGSize sizeOfView = self.view.bounds.size;
+    
+    //camera is currently 640(x), 480(y) in feature detector
+    scalex = sizeOfCamera.width/480;
+    scaley = sizeOfCamera.height/640;
 }
 
 

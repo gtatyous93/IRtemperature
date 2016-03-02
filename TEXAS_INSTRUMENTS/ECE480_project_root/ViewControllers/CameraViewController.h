@@ -12,11 +12,26 @@
 #import <CoreImage/CoreImage.h>
 #import <QuartzCore/QuartzCore.h>
 
+
+typedef struct
+{
+    float LE_x;
+    float LE_y;
+    float RE_x;
+    float RE_y;
+    float Mouth_x;
+    float Mouth_y;
+    bool valid;
+} FacialPoints;
+
+
 @interface CameraViewController : UIViewController
 
 @property (nonatomic) AVCaptureVideoPreviewLayer * previewLayer;
 @property (nonatomic) CAShapeLayer * drawLayer;
 @property (nonatomic) UIBezierPath* trianglePath;
+@property (nonatomic) FacialPoints trianglePoints;
+
 
 @property (nonatomic) AVCaptureSession * captureSession;
 @property (strong,atomic) NSMutableArray *widths,*previous_widths;
