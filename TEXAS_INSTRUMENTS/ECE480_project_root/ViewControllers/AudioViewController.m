@@ -9,105 +9,6 @@
 #import <Foundation/Foundation.h>
 #import "AudioViewController.h"
 
-/*
-void interruptionListenerCallback (
-                                   void	*inUserData,
-                                   UInt32	interruptionState
-                                   ) {
-    // This callback, being outside the implementation block, needs a reference
-    //	to the AudioViewController object
-
-    AudioViewController *controller = (__bridge AudioViewController*) inUserData; //catch bad access exception, occurs when closing phone
-    if (interruptionState == kAudioSessionBeginInterruption) {
-        
-        NSLog (@"Interrupted. Stopping recording/playback.");
-        
-        [controller.analyzer stop];
-        [controller.generator pause];
-    } else if (interruptionState == kAudioSessionEndInterruption) {
-        // if the interruption was removed, resume recording
-        [controller.analyzer record];
-        [controller.generator resume];
-    }
-}
- */
-
-
-/*
-NSURL* squareURL;
-
-static void generate_file(void)
-{
-    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    NSString *documentsDirectory = [paths objectAtIndex:0];
-    
-    NSError *error;
-    [[NSFileManager defaultManager] createDirectoryAtPath:[documentsDirectory stringByAppendingPathComponent:@"Documents"] withIntermediateDirectories:NO attributes:nil error:&error];
-    
-    double hz = FREQUENCY;
-    assert (hz > 0);
-    NSLog (@"generating %f hz tone", hz);
-    NSString *fileName = @"SQUARE.aif";//[NSString stringWithFormat: FILENAME_FORMAT, hz];
-    //        NSString *filePath = [[[NSFileManager defaultManager] currentDirectoryPath] stringByAppendingPathComponent: fileName];
-    NSString *filePath = [documentsDirectory stringByAppendingPathComponent:fileName];
-    NSURL *fileURL = [NSURL fileURLWithPath: filePath];
-    // Prepare the format
-    AudioStreamBasicDescription asbd;
-    memset(&asbd, 0, sizeof(asbd));
-    asbd.mSampleRate = SAMPLE_RATE;
-    asbd.mFormatID = kAudioFormatLinearPCM;
-    asbd.mFormatFlags = kAudioFormatFlagIsBigEndian | kAudioFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked;
-    asbd.mBitsPerChannel = 16;
-    asbd.mChannelsPerFrame = 1;
-    asbd.mFramesPerPacket = 1;
-    asbd.mBytesPerFrame = 2; asbd.mBytesPerPacket = 2;
-    // Set up the file
-    AudioFileID audioFile;
-    OSStatus audioErr = noErr;
-    audioErr = AudioFileCreateWithURL((__bridge CFURLRef)fileURL,
-                                      kAudioFileAIFFType,
-                                      &asbd,
-                                      kAudioFileFlags_EraseFile,
-                                      &audioFile);
-    assert (audioErr == noErr);
-    // Start writing samples
-    long maxSampleCount = SAMPLE_RATE;
-    long sampleCount = 0;
-    UInt32 bytesToWrite = 2;
-    double wavelengthInSamples = SAMPLE_RATE / hz;
-    while (sampleCount < maxSampleCount) {
-        for (int i=0; i<wavelengthInSamples; i++) {
-            // Square wave
-            SInt16 sample;
-            if (i < wavelengthInSamples/2) {
-                sample = CFSwapInt16HostToBig (SHRT_MAX); } else {
-                    sample = CFSwapInt16HostToBig (SHRT_MIN); }
-            audioErr = AudioFileWriteBytes(audioFile, false,
-                                           sampleCount*2, &bytesToWrite, &sample);
-            assert (audioErr == noErr); sampleCount++;
-            
-            //NSLog (@"wrote %ld samples", sampleCount);
-        }
-    }
-    audioErr = AudioFileClose(audioFile); assert (audioErr == noErr);
-    squareURL = fileURL;
-}
-
-@implementation AudioViewController
-
-
-@synthesize analyzer = _analyzer;
-@synthesize generator = _generator;
-@synthesize TransmitterAudioQUeue = _TransmitterAudioQUeue;
-@synthesize ReceiverAudioQUeue = _ReceiverAudioQUeue;
-
-*/
-
-
-
-
-
-///-------------------------------
 
 OSStatus playbackCallback(
                           void *inRefCon,
@@ -160,10 +61,6 @@ OSStatus recordingCallback(void *inRefCon,
     // process the bufferlist in the audio processor
     */
      [viewController processBuffer:&buffer];
-    
-    
-    
-    
     // clean up the buffer
     
 
@@ -184,7 +81,7 @@ OSStatus RenderTone(
 
 {
     // Fixed amplitude is good enough for our purposes
-    const double amplitude = .5;
+    const double amplitude = .45;
     
     // Get the tone parameters out of the view controller
     AudioViewController *viewController = (__bridge AudioViewController *)inRefCon;
@@ -228,10 +125,11 @@ OSStatus RenderTone(
 
 void ToneInterruptionListener(void *inClientData, UInt32 inInterruptionState)
 {
-    AudioViewController *viewController =
-    (__bridge AudioViewController *)inClientData;
+    if(inClientData){
+        AudioViewController *viewController = (__bridge AudioViewController *)inClientData;
+        [viewController stop];
+    }
     
-    [viewController stop];
     
 }
 
@@ -576,10 +474,12 @@ void ToneInterruptionListener(void *inClientData, UInt32 inInterruptionState)
 {
     UISlider * slider = (UISlider *)sender;
     threshold = 0.01*(slider.value - .5);
-//    frequency = 15000 + 10000*(slider.value - 0.5);
-//    if(slider.value > .5) frequency = 100000*slider.value;
-//    else    frequency = (10000*slider.value);
     frequencyLabel.text = [NSString stringWithFormat:@"%4.4f", threshold];
+//    frequency = 10000 + 10000*(slider.value - 0.5);
+
+    //    if(slider.value > .5) frequency = 100000*slider.value;
+//    else    frequency = (10000*slider.value);
+ //   frequencyLabel.text = [NSString stringWithFormat:@"%4.4f", frequency];
     //sampleLabel.text =[NSString stringWithFormat:@"%4.1f Hz", frequency];
 }
 

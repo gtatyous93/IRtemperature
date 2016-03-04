@@ -9,18 +9,26 @@
 #ifndef IntegratingViewController_h
 #define IntegratingViewController_h
 
+#import "AudioController.h"
+#import "VideoController.h"
+#import "MotionController.h"
 
-#endif /* IntegratingViewController_h */
-
-
-@interface CoreMotionViewController : UIViewController
+@interface IntegratingViewController : UIViewController
 
 
 //@property (nonatomic) AudioController *audioControl;
 //@property (nonatomic) VideoController *videoControl;
 //@property (nonatomic) MotionController *motionControl;
 
+@property VideoController*  vidControl;
+@property MotionController* motControl;
+@property AudioController*  audControl;
 
--(void) init
+
+@property (strong, atomic) IBOutlet UILabel *face_bool;
+
 
 @end
+
+#endif /* IntegratingViewController_h */
+

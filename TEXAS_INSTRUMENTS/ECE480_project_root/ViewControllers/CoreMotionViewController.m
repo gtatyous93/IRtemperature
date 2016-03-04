@@ -127,7 +127,19 @@
        //then stop capturing
        _capturing = false;
        //double integrate
+       float ALPHA = 0.15f;
        float sample_sum = 0.0;
+      
+       /*
+       NSMutableArray* temparray = [NSMutableArray array];
+       for( NSNumber* sample in _accel_FIFO)
+       {
+           //output[i] = output[i] + ALPHA * (input[i] - output[i]);
+       //    float ALPHA*sample;
+        //   y[i] := α * x[i] + (1-α) * y[i-1];
+        //   [temparray addObject:[NSNumber numberWithFloat:]];
+       }
+       */
        NSMutableArray * integral = [NSMutableArray array];
        for( NSNumber* sample in _accel_FIFO)
        {
@@ -142,13 +154,14 @@
        
        self.rotZ.text = [NSString stringWithFormat:@" %.4fcm",sample_sum];
        [_accel_FIFO removeAllObjects];
-       
+       self.view.backgroundColor = [UIColor redColor];
        [selectedButton setTitle:NSLocalizedString(@"Start", nil) forState:0];
    }
    else
    {
        //then start capturing
        _capturing = true;
+       self.view.backgroundColor = [UIColor greenColor];
        [selectedButton setTitle:NSLocalizedString(@"Stop", nil) forState:0];
        
    }
@@ -235,10 +248,10 @@
     //Called after the controller's view is loaded into memory
     [super viewDidLoad];
     _capturing = false;
+    self.view.backgroundColor = [UIColor redColor];
     _accel_FIFO = [[NSMutableArray alloc] init];
     _rotat_FIFO = [[NSMutableArray alloc] init];
     [self ConfigMotionSensors];
-    
 }
 
 - (void)viewDidUnload

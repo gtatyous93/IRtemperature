@@ -10,7 +10,8 @@
 #import "queue.h"
 #import <CoreMotion/CoreMotion.h>
 
-#define SAMPLING_PERIOD .2
+#define SAMPLING_PERIOD .02
+
 typedef struct {
     NSTimeInterval delta;
     int x;

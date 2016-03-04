@@ -1,68 +1,103 @@
 //
-//  MotionController.m
+//  CoreMotionViewController.m
 //  TEXAS_INSTRUMENTS
 //
-//  Created by Ian Bacus on 2/28/16.
+//  Created by Ian Bacus on 2/19/16.
 //  Copyright © 2016 Ian Bacus. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
-#import "queue.h"
-#import <CoreMotion/CoreMotion.h>
+#import "MotionController.h"
 
-typedef struct {
-    NSTimeInterval delta;
-    int x;
-    int y;
-    int z;
-} accel_point_t;
+@implementation MotionController
 
-typedef struct {
-    NSTimeInterval delta;
-    int x;
-    int y;
-    int z;
-} rotation_point_t;
+@synthesize accel_FIFO = _accel_FIFO;
 
 
-//@interface UIViewController ()
-@interface CoreMotionViewController : UIViewController
+- (IBAction)integrator:(id)sender
+{
+    UIButton *selectedButton = (UIButton *)sender;
+    if(_capturing)
+    {
+        //then stop capturing, and calculate the double integral
+        _capturing = false;
+        [selectedButton setTitle:NSLocalizedString(@"Start", nil) forState:0];
+    }
+    else
+    {
+        //then start capturing
+        _capturing = true;
+        [selectedButton setTitle:NSLocalizedString(@"Stop", nil) forState:0];
+        
+    }
+    
+}
 
-@property (strong, atomic) NSMutableArray *accel_FIFO;
-@property (strong, atomic) NSMutableArray *rotat_FIFO;
+-(float)getDisplacement
+{
+    float sample_sum = 0.0;
+    NSMutableArray * integral = [NSMutableArray array];
+    for( NSNumber* sample in _accel_FIFO)
+    {
+        sample_sum += _samplePeriod*[sample floatValue]*100;
+        [integral addObject:[NSNumber numberWithFloat:sample_sum]];
+    }
+    sample_sum = 0;
+    for( NSNumber* sample in integral)
+    {
+        sample_sum += _samplePeriod*[sample floatValue];
+    }
+    
+    [_accel_FIFO removeAllObjects];
+    return sample_sum;
+    
+}
 
-@property (nonatomic) double currentMaxAccelX;
-@property (nonatomic) double currentMaxAccelY;
-@property (nonatomic) double currentMaxAccelZ;
 
-@property (nonatomic) double currentMaxRotX;
-@property (nonatomic) double currentMaxRotY;
-@property (nonatomic) double currentMaxRotZ;
+-(void)outputMotionData:(CMDeviceMotion *)motion
+{
+    if(_capturing)
+    {
+        float adjusted_accel = ([motion userAcceleration].z)/9.806;
+        NSNumber *sample = [NSNumber numberWithFloat:adjusted_accel];
+        [_accel_FIFO addObject:sample];
+    }
+    
+}
 
-@property (atomic) CGFloat axial_displacement,depth;
-@property (nonatomic) bool capturing;
+
+-(CGFloat)calculate_depth:(CGFloat)delta_width withDisplacement:(CGFloat)displacement
+{
+    //TODO: experimentally determine the relationship between d_featureWidth/d_axialDistance and depth
+    CGFloat div;
+    div = delta_width/displacement;
+    return div;
+}
 
 
-@property (strong, nonatomic) IBOutlet UILabel *accX;
-@property (strong, nonatomic) IBOutlet UILabel *accY;
-@property (strong, nonatomic) IBOutlet UILabel *accZ;
 
-@property (strong, nonatomic) IBOutlet UILabel *rotX;
-@property (strong, nonatomic) IBOutlet UILabel *rotY;
-@property (strong, nonatomic) IBOutlet UILabel *rotZ;
+- (void) ConfigMotionSensors:(CMDeviceMotionHandler)handler withSamplePeriod:(float)samplingPeriod
+{
+    _samplePeriod = samplingPeriod;
+    _motionManager = [[CMMotionManager alloc] init];
+    _motionManager.deviceMotionUpdateInterval = _samplePeriod;
+    [_motionManager startDeviceMotionUpdatesToQueue:[NSOperationQueue currentQueue] withHandler:handler];
 
-@property (strong, nonatomic) IBOutlet UILabel *maxAccX;
-@property (strong, nonatomic) IBOutlet UILabel *maxAccY;
-@property (strong, nonatomic) IBOutlet UILabel *maxAccZ;
+}
 
-@property (strong, nonatomic) IBOutlet UILabel *maxRotX;
-@property (strong, nonatomic) IBOutlet UILabel *maxRotY;
-@property (strong, nonatomic) IBOutlet UILabel *maxRotZ;
 
-- (IBAction)integrator:(id)sender;
+#pragma mark - View lifecycle
 
-@property (strong, nonatomic) CMMotionManager *motionManager;
+
+- (void)viewDidLoad
+{
+    //Called after the controller's view is loaded into memory
+    [super viewDidLoad];
+    _capturing = false;
+    _accel_FIFO = [[NSMutableArray alloc] init];
+    [self ConfigMotionSensors:^(CMDeviceMotion *motionData, NSError *error) { [self outputMotionData:motionData]; if(error) { NSLog(@"%@", error); } } withSamplePeriod:.02];
+    
+}
 
 
 @end

@@ -46,134 +46,78 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
        fromConnection:(AVCaptureConnection *)connection
 {
     connection.videoOrientation = AVCaptureVideoOrientationPortrait;
-    //NSLog(@"captureOutput: didOutputSampleBufferFromConnection");
-    
-    //NSNumber* zero = 0;
-    // Create a UIImage from the sample buffer data
     CIImage *image = [self imageFromSampleBuffer:sampleBuffer];
-    
-    //TODO: fix this code, it is buggy right now
     bool face_test = [self getFeatureWidth:image];
-    
     //_axial_displacement = [self displacement_capture_reset]; //positive: closer, negative: farther
     //_delta_width = [[_widths objectAtIndex:0] floatValue] - [[_previous_widths objectAtIndex:0] floatValue];
     //_depth = [self calculate_depth:_delta_width withDisplacement:_axial_displacement];
     
     [[NSOperationQueue mainQueue] addOperationWithBlock:^ {
-        [self drawme];
-        if(face_test) _face_bool.text = @"Face detected";
-        else _face_bool.text = @"No face";
-        
+        [self drawme]; //must be in the main thread
+        if(face_test)
+        {
+            _face_bool.text = @"Face detected";
+            self.view.backgroundColor = [UIColor greenColor];
+        }
+        else
+        {
+            _face_bool.text = @"No face";
+            self.view.backgroundColor = [UIColor redColor];
+        }
         _dist_LE_RE.text = [NSString stringWithFormat:@" %.2f",[[_widths objectAtIndex:0] doubleValue]];
         _dist_LE_M.text =  [NSString stringWithFormat:@" %.2f",[[_widths objectAtIndex:1] doubleValue]];
         _dist_RE_M.text =  [NSString stringWithFormat:@" %.2f",[[_widths objectAtIndex:2] doubleValue]];
         _dist_face.text =  [NSString stringWithFormat:@" %.2f",[[_widths objectAtIndex:3] doubleValue]];
-        //Your code goes in here
-        //NSLog(@"Main Thread Code");
         
     }];    /*
             
-            //Update previous_widths
-            for (NSNumber* width_reading in _widths) //iterate through LE_RE, RE_M, LE_M, facewidth
-            {
-            if ([width_reading compare:zero]) //reset case: measured width feature was reset
-            {
+    //Update previous_widths
+    for (NSNumber* width_reading in _widths) //iterate through LE_RE, RE_M, LE_M, facewidth
+    {
+        if ([width_reading compare:zero]) //reset case: measured width feature was reset
+        {
             //reset state information about previous reading
-            
             [_previous_widths replaceObjectAtIndex:[_widths indexOfObject:width_reading]withObject:zero];
-            
-            }
-            else
-            {
-            
-            //previous_widths should have the same size as
-            
-            //determine the difference in width for this feature from the previous capture
-            NSNumber *new_num = [NSNumber numberWithFloat:
-            [width_reading floatValue] -
-            [[ _previous_widths objectAtIndex:[_widths indexOfObject:width_reading] ] floatValue] ];
-            
+        
+        }
+        else
+        {
+            //previous_widths should have the same size as _widths. determine the difference in width for this feature from the previous capture
+            NSNumber *new_num = [NSNumber numberWithFloat: [width_reading floatValue] - [[ _previous_widths objectAtIndex:[_widths indexOfObject:width_reading] ] floatValue] ];
             [_previous_widths replaceObjectAtIndex:[_widths indexOfObject:width_reading]withObject:new_num];
-            }
-            
-            }
-            */
-    //[self.drawLayer setNeedsDisplay];
-
-    /*
-    if(trianglePoints.valid){
-        CGContextRef ctx = UIGraphicsGetCurrentContext();
-        CGContextBeginPath(ctx);
+        }
         
-        CGContextMoveToPoint(ctx, trianglePoints.LE_x, trianglePoints.LE_y);
-        
-        CGContextAddLineToPoint(ctx, trianglePoints.RE_x, trianglePoints.RE_y);
-        
-        CGContextAddLineToPoint(ctx, trianglePoints.Mouth_x, trianglePoints.Mouth_y);
-        
-        CGContextClosePath(ctx);
-        CGContextDrawPath(ctx, kCGPathFillStroke);
-    }
-    */
-    
-    
+    }*/
 }
-- (void)drawLayer:(CALayer*)layer inContext:(CGContextRef)ctx {
-    NSLog(@"drawing some shapes!");
 
-    //ctx = UIGraphicsGetCurrentContext();
+- (void)drawLayer:(CALayer*)layer inContext:(CGContextRef)ctx
+{
     if(trianglePoints.valid){
-        NSLog(@"TRIANGLE!");
-        
-        UIColor *color1 = [UIColor colorWithRed:0/255.0 green:255/255.0 blue:255/255.0 alpha:0.5];
-       //  CGContextSetFillColor(ctx, CGColorGetComponents([UIColor greenColor].CGColor));
-//        CGContextSetStrokeColor(ctx, CGColorGetComponents([UIColor redColor].CGColor));
-        
+        //Draw a triangle path (inverted across x and y) using 3 points determined from facial feature recognizer
         CGContextBeginPath(ctx);
         CGContextMoveToPoint(ctx, (offsetX-scalex*trianglePoints.LE_x), (offsetY-scaley*trianglePoints.LE_y));
         CGContextAddLineToPoint(ctx, (offsetX-scalex*trianglePoints.RE_x), (offsetY-scaley*trianglePoints.RE_y));
         CGContextAddLineToPoint(ctx, (offsetX-scalex*trianglePoints.Mouth_x), (offsetY-scaley*trianglePoints.Mouth_y));
         CGContextClosePath(ctx);
-
-        CGContextSetFillColor(ctx, CGColorGetComponents(color1.CGColor));
+        
+        //Leave the fill empty, create a dashed line along the perimeter of the triangle path
+        CGContextSetFillColor(ctx, CGColorGetComponents([UIColor clearColor].CGColor));
+        //CGContextSetFillColor(ctx, CGColorGetComponents(color1.CGColor));
+        [[UIColor whiteColor] setStroke];
+        CGContextSetLineWidth(ctx, 5.0);
+        CGFloat dash1[] = {5.0, 2.0};
+        CGContextSetLineDash(ctx, 0.0, dash1, 2);
+        
+        CGContextStrokePath(ctx);
         CGContextDrawPath(ctx, kCGPathFill);
     }
-    
-    //CGContextSetRGBFillColor (ctx, 1, 0, 0, 1);
-    //CGContextFillRect (ctx, CGRectMake (0, 0, 100, 100 ));
 }
 
-- (void)drawme {
-    NSLog(@"drawme");
-    
-    //[[self drawLayer] setNeedsDisplay];
-    
+- (void)drawme
+{
     [self.drawLayer setNeedsDisplay];
-    /*
-     [trianglePath moveToPoint:CGPointMake(0, [[_widths objectAtIndex:0] doubleValue])];
-     [trianglePath addLineToPoint:CGPointMake([[_widths objectAtIndex:0] doubleValue],[[_widths objectAtIndex:1] doubleValue])];
-     [trianglePath addLineToPoint:CGPointMake([[_widths objectAtIndex:1] doubleValue], [[_widths objectAtIndex:2] doubleValue])];
-     [trianglePath closePath];
-     */
-    
-    /*
-     _drawLayer.frame = CGRectMake (0, 0,self.view.bounds.size.height,self.view.bounds.size.width);
-     _drawLayer.path = (__bridge CGPathRef _Nullable)(_trianglePath);
-     _drawLayer.lineWidth = 3.0f;
-     _drawLayer.strokeColor = [UIColor blackColor].CGColor;
-     _drawLayer.fillColor = [UIColor clearColor].CGColor;
-     
-     [self.cameraPreviewView.layer addSublayer:_drawLayer];
-     */
-    
-    //_trianglePath.lineWidth = 5;
-    //[_trianglePath fill];
-    //[_trianglePath stroke];
-    //[self.previewLayer insertSublayer: _drawLayer atIndex:0];
-    
-    
-    //triangleMaskLayer;
 }
+
 - (UIImage*)rotateUIImage:(UIImage*)sourceImage clockwise:(BOOL)clockwise
 {
     CGSize size = sourceImage.size;
@@ -221,16 +165,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     
     // Create an image object from the Quartz image
     CIImage *image = [CIImage imageWithCGImage:quartzImage];
-    
-    
-    int orient = UIImageOrientationUpMirrored;
-    UIImage *uiImage = [[UIImage alloc] initWithCIImage:image scale:1 orientation:orient];
-    [self rotateUIImage:uiImage clockwise:false];
 
-    //uiImage = [self rotate:uiImage andOrientation:UIImageOrientationUp];
-    
-    image = uiImage.CIImage;
-    
     // Release the Quartz image
     CGImageRelease(quartzImage);
     
@@ -243,14 +178,8 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     //CIImage* image = [CIImage imageWithCGImage:facePicture.image.CGImage]; //extract frames from video?
     
     CIImage * image = frame_sample;// = [frame_sample CIImage];
-    
-    
-    CIDetector* detector = [CIDetector detectorOfType:CIDetectorTypeFace
-                                              context:nil options:[NSDictionary dictionaryWithObject:CIDetectorAccuracyLow forKey:CIDetectorAccuracy]];
+    CIDetector* detector = [CIDetector detectorOfType:CIDetectorTypeFace context:nil options:[NSDictionary dictionaryWithObject:CIDetectorAccuracyLow forKey:CIDetectorAccuracy]];
     NSArray* features = [detector featuresInImage:image];
-    ////
-    _IBdepth.text = [NSString stringWithFormat:@" %@",_IBdepth];
-    trianglePoints.valid = false;
     trianglePoints.valid = false;
     if([features count] == 0) return false;
     
@@ -306,15 +235,6 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
             
             
         }
-        
-        /*
-         [_trianglePath moveToPoint:CGPointMake(faceFeature.leftEyePosition.x, faceFeature.leftEyePosition.y)];
-         [_trianglePath addLineToPoint:CGPointMake(faceFeature.rightEyePosition.x, faceFeature.rightEyePosition.y)];
-         [_trianglePath addLineToPoint:CGPointMake(faceFeature.mouthPosition.x,faceFeature.mouthPosition.y)];
-         [_trianglePath closePath];
-         */
-        //_widths[3] = [NSNumber numberWithFloat:faceFeature.bounds.size.width];
-        
         
     }
     
@@ -456,13 +376,13 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     [self setupCaptureSession ];
     [self.drawLayer setNeedsDisplay];
     [self.cameraPreviewView.layer addSublayer:self.drawLayer];
-    
+    self.view.backgroundColor = [UIColor redColor];
     CGSize sizeOfCamera = _cameraPreviewView.layer.frame.size;
     CGSize sizeOfView = self.view.bounds.size;
     
     //camera is currently 640(x), 480(y) in feature detector
-    scalex = sizeOfCamera.width/480;
-    scaley = sizeOfCamera.height/640;
+    scalex = .75;//sizeOfCamera.width/480;
+    scaley = .73;//sizeOfCamera.height/640;
 }
 
 
