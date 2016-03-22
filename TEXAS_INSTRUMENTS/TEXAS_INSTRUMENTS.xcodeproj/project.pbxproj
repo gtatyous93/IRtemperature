@@ -352,7 +352,7 @@
 				TargetAttributes = {
 					2D74CBD71C173AE500700459 = {
 						CreatedOnToolsVersion = 7.1.1;
-						DevelopmentTeam = ZY863HM3S7;
+						DevelopmentTeam = ECV78PLF8L;
 					};
 					2D74CBF31C173AE600700459 = {
 						CreatedOnToolsVersion = 7.1.1;
@@ -571,7 +571,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				INFOPLIST_FILE = ECE480_project_root/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = ianbacusdev.com.depthfeatures;
+				PRODUCT_BUNDLE_IDENTIFIER = gtatyous.com.depthfeatures;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -583,7 +583,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				INFOPLIST_FILE = ECE480_project_root/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = ianbacusdev.com.depthfeatures;
+				PRODUCT_BUNDLE_IDENTIFIER = gtatyous.com.depthfeatures;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
