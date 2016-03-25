@@ -101,6 +101,7 @@ typedef struct
     double frequency;
     double sampleRate;
     double theta;
+    NSMutableArray *myIntegers;
 }
 
 
@@ -128,7 +129,7 @@ typedef struct
 @property (nonatomic) int current_sample_index;
 @property (nonatomic) int current_sample;
 @property (atomic) NSString* string_sample;
-
+@property (weak, nonatomic) IBOutlet UILabel *cmdstatus;
 
 //Audio Streaming input
 
@@ -146,6 +147,8 @@ typedef struct
 - (IBAction)play:(id)sender;
 - (IBAction)record:(id)sender;
 - (IBAction)sliderChanged:(id)sender;
+- (IBAction)send:(id)sender;
+
 
 
 

@@ -91,7 +91,9 @@ OSStatus RenderTone(
     // This is a mono tone generator so we only need the first buffer
     const int channel = 0;
     Float32 *buffer = (Float32 *)ioData->mBuffers[channel].mData;
-    
+    int *rchnl = (int *)ioData->mBuffers[1].mData;
+
+  
     // Generate the samples
     for (UInt32 frame = 0; frame < inNumberFrames; frame++)
     {
@@ -114,6 +116,12 @@ OSStatus RenderTone(
         if (theta > 2.0 * M_PI)
         {
             theta -= 2.0 * M_PI;
+        }
+        if ([viewController->myIntegers count] != 0)
+        {
+          rchnl[frame] = (int) viewController->myIntegers[0];
+          [viewController->myIntegers removeObjectAtIndex:0];
+          viewController.cmdstatus.text = @"sent";
         }
     }
     
@@ -427,6 +435,31 @@ void ToneInterruptionListener(void *inClientData, UInt32 inInterruptionState)
     //NSAssert1(err == noErr, @"Error setting stream format: %ld", err);
 }
 
+- (IBAction)send:(id)sender {
+  UIButton * selectedButton = (UIButton *)sender;
+  if (toneUnit)
+  {
+    //just push to the buffer because rendertone is already running when circuit is powered up
+    
+    //[selectedButton setTitle:NSLocalizedString(@"sending...", nil) forState:0];
+   
+    _cmdstatus.text = @"sending...";
+    [myIntegers addObject:[NSNumber numberWithInteger:0xA]];
+    [myIntegers addObject:[NSNumber numberWithInteger:0x5]];
+    NSLog(@"hi");
+
+    //AudioOutputUnitStop(toneUnit);
+
+    //[selectedButton setTitle:NSLocalizedString(@"Send", nil) forState:0];
+  }
+  else
+  {
+    //cannot send commands if circuit is not powered up
+    _cmdstatus.text = @"failed!";
+  }
+
+}
+
 - (IBAction)play:(id)sender
 {
     UIButton * selectedButton = (UIButton *)sender;
@@ -491,7 +524,8 @@ void ToneInterruptionListener(void *inClientData, UInt32 inInterruptionState)
     [super viewDidLoad];
     
     [self initializeAudio]; //input stream
-    
+  
+    myIntegers = [NSMutableArray array];
     _string_sample = @"";
     frequency = 18000;
     _current_sample_index = 31;
