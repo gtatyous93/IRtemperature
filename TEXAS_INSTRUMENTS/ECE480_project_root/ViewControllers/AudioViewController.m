@@ -10,16 +10,6 @@
 #import "AudioViewController.h"
 
 
-OSStatus playbackCallback(
-                          void *inRefCon,
-                          AudioUnitRenderActionFlags 	*ioActionFlags,
-                          const AudioTimeStamp 		*inTimeStamp,
-                          UInt32 						inBusNumber,
-                          UInt32 						inNumberFrames,
-                          AudioBufferList 			*ioData)
-{
-    return noErr;
-}
 
 OSStatus recordingCallback(void *inRefCon,
                            AudioUnitRenderActionFlags *ioActionFlags,
@@ -34,13 +24,13 @@ OSStatus recordingCallback(void *inRefCon,
     // a variable where we check the status
     OSStatus status;
     
-    /**
-     This is the reference to the object who owns the callback.
-     */
+  
+    //This is the reference to the object who owns the callback.
     if(!inRefCon) return 0;
     AudioViewController *viewController = (__bridge AudioViewController*) inRefCon;
+  
     
-    /**
+    /*
      on this point we define the number of channels, which is mono
      for the iphone. the number of frames is usally 512 or 1024.
      */
@@ -60,7 +50,7 @@ OSStatus recordingCallback(void *inRefCon,
     
     // process the bufferlist in the audio processor
     */
-     [viewController processBuffer:&buffer];
+     //[viewController processBuffer:&buffer];
     // clean up the buffer
     
 
@@ -121,7 +111,9 @@ OSStatus RenderTone(
         {
           rchnl[frame] = (int) viewController->myIntegers[0];
           [viewController->myIntegers removeObjectAtIndex:0];
-          viewController.cmdstatus.text = @"sent";
+          viewController.cmdstatus.text = @"";
+          viewController.cmdstatus.text = @"sent!";
+          NSLog(@"sent");
         }
     }
     
@@ -182,13 +174,15 @@ void ToneInterruptionListener(void *inClientData, UInt32 inInterruptionState)
 //    [self hasError:status:__FILE__:__LINE__];
     
     // define that we want play on io on the output bus
-   
+  
+   /*
     status = AudioUnitSetProperty(audioUnit,
                                   kAudioOutputUnitProperty_EnableIO, // use io
                                   kAudioUnitScope_Output, // scope to output
                                   kOutputBus, // select output bus (0)
                                   &flag, // set flag
                                   sizeof(flag));
+                                  */
     
 //    [self hasError:status:__FILE__:__LINE__];
     
@@ -223,17 +217,19 @@ void ToneInterruptionListener(void *inClientData, UInt32 inInterruptionState)
     audioFormat.mBitsPerChannel     = 32;
     */
     // set the format on the output stream
-    
+  
+    /*
     status = AudioUnitSetProperty(audioUnit,
                                   kAudioUnitProperty_StreamFormat,
                                   kAudioUnitScope_Output,
                                   kInputBus,
                                   &audioFormat,
                                   sizeof(audioFormat));
-    
+    */
     
 //    [self hasError:status:__FILE__:__LINE__];
-    
+  
+  
     // set the format on the input stream
     status = AudioUnitSetProperty(audioUnit,
                                   kAudioUnitProperty_StreamFormat,
@@ -241,6 +237,8 @@ void ToneInterruptionListener(void *inClientData, UInt32 inInterruptionState)
                                   kOutputBus,        //kOutputBus
                                   &audioFormat,
                                   sizeof(audioFormat));
+  
+  NSAssert1(status == noErr, @"Error setting thingie 2: %d", status);
 //    [self hasError:status:__FILE__:__LINE__];
     
     /**
@@ -261,7 +259,9 @@ void ToneInterruptionListener(void *inClientData, UInt32 inInterruptionState)
                                   kInputBus,
                                   &callbackStruct,
                                   sizeof(callbackStruct));
-    
+  NSAssert1(status == noErr, @"Error setting thingie: %d", status);
+  
+  
     //[self hasError:status:__FILE__:__LINE__];
     
     /*
@@ -272,7 +272,8 @@ void ToneInterruptionListener(void *inClientData, UInt32 inInterruptionState)
     //callbackStruct.inputProcRefCon = (__bridge void * _Nullable)(self);
     
     // set playbackCallback as callback on our renderer for the output bus
-    
+  
+    /*
     status = AudioUnitSetProperty(audioUnit,
                                   kAudioUnitProperty_SetRenderCallback,
                                   kAudioUnitScope_Global, //kAudioUnitScope_Global
@@ -280,7 +281,7 @@ void ToneInterruptionListener(void *inClientData, UInt32 inInterruptionState)
                                   &callbackStruct,
                                   sizeof(callbackStruct));
     
-    
+    */
     //[self hasError:status:__FILE__:__LINE__];
     
     // reset flag to 0
@@ -290,23 +291,27 @@ void ToneInterruptionListener(void *inClientData, UInt32 inInterruptionState)
      we need to tell the audio unit to allocate the render buffer,
      that we can directly write into it.
      */
-    
+    /*
     status = AudioUnitSetProperty(audioUnit,
                                   kAudioUnitProperty_ShouldAllocateBuffer,
                                   kAudioUnitScope_Output,
                                   kInputBus,
                                   &flag,
                                   sizeof(flag));
-    
-    
+                                  */
+  
+  
+  
     /*
      we set the number of channels to mono and allocate our block size to
      1024 bytes.
      */
 
+/*
     audioBuffer.mNumberChannels = 1;
     audioBuffer.mDataByteSize = BYTES_PER_BLOCK;
     audioBuffer.mData = malloc( BYTES_PER_BLOCK );
+    */
     
     // Initialize the Audio Unit and cross fingers =)
  
@@ -442,14 +447,12 @@ void ToneInterruptionListener(void *inClientData, UInt32 inInterruptionState)
     //just push to the buffer because rendertone is already running when circuit is powered up
     
     //[selectedButton setTitle:NSLocalizedString(@"sending...", nil) forState:0];
-   
+    _cmdstatus.text = @"";
     _cmdstatus.text = @"sending...";
+    //NSLog(@"sending...");
     [myIntegers addObject:[NSNumber numberWithInteger:0xA]];
     [myIntegers addObject:[NSNumber numberWithInteger:0x5]];
-    NSLog(@"hi");
-
-    //AudioOutputUnitStop(toneUnit);
-
+    //NSLog(@"done sending");
     //[selectedButton setTitle:NSLocalizedString(@"Send", nil) forState:0];
   }
   else
@@ -506,8 +509,6 @@ void ToneInterruptionListener(void *inClientData, UInt32 inInterruptionState)
         [selectedButton setTitle:NSLocalizedString(@"Stop", nil) forState:0];
         OSStatus status = AudioOutputUnitStart(audioUnit);
     }
-    
-    
     
 }
 
