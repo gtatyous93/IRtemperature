@@ -14,7 +14,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with hijack-infinity.  If not, see <http://www.gnu.org/licenses/>.
  */
-
+#ifdef qeyudflpks
 #include "pal.h"
 
 #include <msp430.h>
@@ -168,3 +168,5 @@ void pal_captureTimerFn(uint16_t elapsedTime) {
 void pal_loopDelay(void) {
 	__delay_cycles(4000);
 }
+#endif
+

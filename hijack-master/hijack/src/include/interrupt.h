@@ -27,7 +27,7 @@
 typedef void interrupt_callback(void);
 
 uint8_t pwr_on;
-volatile uint8_t pTransitionState;
+//volatile uint8_t pTransitionState;
 
 typedef enum interrupt_edge {
 	LOW_TO_HIGH,

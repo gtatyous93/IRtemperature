@@ -53,7 +53,7 @@ void pal_init(void) {
 
 	//gpio_init(DIN1_PORT, DIN1_PIN, GPIO_IN);
 	//gpio_init(DIN2_PORT, DIN2_PIN, GPIO_IN);
-	gpio_init(MIC_PORT, MIC_PIN, GPIO_OUT);
+	gpio_init(MIC_PORT, MIC_PIN, GPIO_IN);
 	gpio_init(LED_PORT, LED_PIN, GPIO_OUT);
 	gpio_init(LED2_PORT, LED2_PIN, GPIO_OUT);
 
@@ -127,7 +127,7 @@ uint16_t pal_readAnalogGpio(enum pal_gpioEnum pin) {
 }
 
 void pal_startTimers(void) {
-	timer_init();
+	//timer_init();
 	timer_setCaptureCallback(pal_captureTimerFn);
 	timer_setPeriodicCallback(pal_periodicTimerFn);
 

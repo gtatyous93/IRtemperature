@@ -191,6 +191,7 @@ interrupt_callback* cb_fns[32];
 void interrupt_init () {
 	uint8_t i;
 
+	__bis_SR_register(GIE);       //enable interrupts
 	for (i=0; i<32; i++) {
 		cb_fns[i] = NULL;
 	}

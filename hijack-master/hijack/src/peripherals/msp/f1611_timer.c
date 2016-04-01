@@ -24,9 +24,12 @@
 
 #include "pal.h"
 
-#include <msp430.h>
+#include <msp430f1611.h>
 
-void timer_init (void) {
+timer_captureCallback *timer_captureCbPtr;
+timer_periodicCallback *timer_periodicCbPtr;
+
+void timer_init (int f) {
 	//////////////////////////////////
 	// Comparator
 
@@ -43,20 +46,33 @@ void timer_init (void) {
 
 	///////////////////////////
 	// TimerA - Capture Timer
+
 	TACTL = TASSEL_2 + TACLR;
-	TACCTL1 = CM_3 + CCIS_1 + CAP + CCIE;
+	TACCTL1 = CM_3 + CCIS_1 + CAP;// + CCIE;
 
 	///////////////////////////
 	// TimerB - Periodic Timer
-	TBCTL = TBSSEL_2 + TBIE + TBCLR;
-	TBCCTL0 = 0;
-	TBCCR0 = DELTAT*16;
+	P4SEL |= BIT0;
+	P4DIR |= BIT0;
+
+	//16 bit counter, SMCLK source, interrupt enable, reset timer
+	TBCTL = TBSSEL_2 + TBCLR + TBIE;
+
+	//CCTL: no capture, compare mode, output set by OUT bit value, interrupt disabled (?)
+	TBCCTL0 = CCIE;
+	/*
+	count up once per microsecond
+	CCR0 = T/2, T = 2*CCR0
+	frequency = 1/T = 1/(2*CCR0), CCR0 = 1/(2*f)
+	*/
+	//TBCCR0 = DELTAT*16;
+	TBCCR0 = 1/(2*f);
 }
 
 void timer_start (void) {
 	CACTL1 |= (CAON + CAREF_2);
-	TACTL |= MC_2;
-	TBCTL |= MC_1;
+	//TACTL |= MC_2;
+	TBCTL |= MC_1; //up counting mode
 }
 
 void timer_setCaptureCallback (timer_captureCallback* cb) {
@@ -89,12 +105,22 @@ __interrupt void Timer_A1 (void) {
 
 	TACCTL1 &= ~CCIFG;
 }
-
-#pragma vector = TIMERB1_VECTOR
-__interrupt void Timer_B1 (void) {
+/*
+#pragma vector = TIMERB0_VECTOR
+__interrupt void Timer_B0 (void)
+*/
+__attribute__((interrupt(TIMERB0_VECTOR))) void Timer_B0 (void)
+{
 	timer_periodicCbPtr();
+	TBCTL |= TBIFG;
 	TBCTL &= ~TBIFG;
 
+	TBCCTL1 &= ~(COV);
+	//TBIV |= TBIFG;
+
+	//TBIV = ~0;
+	//TBCCTL1 &= ~CCIFG;
+	/*
 	if (pendingTimerStop) {
 		pendingStop = 0;
 		pendingShutdown = 0;
@@ -102,6 +128,7 @@ __interrupt void Timer_B1 (void) {
 		pendingStart = 1;
 		_BIS_SR_IRQ(LPM3_bits);
 	}
+	*/
 }
 
 
