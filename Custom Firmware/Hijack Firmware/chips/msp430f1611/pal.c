@@ -127,7 +127,7 @@ uint16_t pal_readAnalogGpio(enum pal_gpioEnum pin) {
 }
 
 void pal_startTimers(void) {
-	timer_init();
+	//timer_init();
 	timer_setCaptureCallback(pal_captureTimerFn);
 	timer_setPeriodicCallback(pal_periodicTimerFn);
 

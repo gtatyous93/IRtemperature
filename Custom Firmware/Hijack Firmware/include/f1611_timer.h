@@ -29,10 +29,8 @@
 typedef void timer_captureCallback(uint16_t);
 typedef void timer_periodicCallback(void);
 
-timer_captureCallback *timer_captureCbPtr;
-timer_periodicCallback *timer_periodicCbPtr;
 
-void timer_init (void);
+void timer_init (int);
 void timer_start (void);
 void timer_setCaptureCallback (timer_captureCallback* cb);
 void timer_setPeriodicCallback (timer_periodicCallback* cb);

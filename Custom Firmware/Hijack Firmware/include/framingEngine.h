@@ -15,6 +15,8 @@
  *  along with hijack-infinity.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
+#ifdef asdasd
 #ifndef __FRAMINGENGINE_H__
 #define __FRAMINGENGINE_H__
 
@@ -98,4 +100,5 @@ struct fe_state_struct {
 	fe_bufferSender* bufferSender;
 } fe;
 
+#endif
 #endif

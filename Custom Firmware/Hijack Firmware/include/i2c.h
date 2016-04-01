@@ -13,7 +13,10 @@
 #define I2C_TRANSMIT_INTERRUPT           UCTXIE
 #define I2C_RECEIVE_INTERRUPT            UCRXIE
 
-void i2c_init();
+
+typedef void timer_periodicCallback(void);
+
+void i2c_init(timer_periodicCallback*, int);
 
 void i2c_enable_interrupt();
 
