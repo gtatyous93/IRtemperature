@@ -2,35 +2,40 @@
 
 timer_periodicCallback *I2C_callback;
 
+#define TMP_SDA_SLAVE	0b1000010
+#define TMP007_I2CADDR 0x40
+
 void i2c_init(timer_periodicCallback* cb,int f){
-	// Select Port 3 Pins 1 & 3 as i2c pins
-	P3SEL |= BIT3+BIT1; //Pin 1 is used to receive from the TMP
-	P3DIR |= BIT3; //set the SCLK pin to output
-	P3DIR &= ~BIT1;
-	// Set I2C Mode 
-	U0CTL |= I2C + SYNC + MST;
-	
-	// Disable I2C
+
+	//Configure I2C: I2CEN must be disabled for all configuration
+	U0CTL = 0;
+	U0CTL |= SWRST;
+	//Disable I2C (automatically when only these two bits are set), set I2C mode
+	U0CTL |= I2C + SYNC;
 	U0CTL &= ~I2CEN;
-	
+
+	U0CTL |= MST;
 	// Set clock source to SMCLK
-	I2CTCTL = I2CSSEL_2 + I2CWORD;
-	I2CPSC = 2; //divide by 3
+	I2CTCTL = 0X00;
+	I2CTCTL = I2CSSEL_3;// + I2CRM;
+	I2CPSC = 1; //divide by 3
 	I2CSCLL = 10; //low-period: 2+I2CSCLL (minimum of 5 output)
-	I2CSCLH = 10; //high-period: 2+I2CSCLH (minimum of 5 output))
-	
-	// Set slave address
-	//I2CSA = 0b1000000;
-	
+	I2CSCLH = 10;//100; //high-period: 2+I2CSCLH (minimum of 5 output))
+	I2COA = 1;
+	I2CSA = TMP_SDA_SLAVE;
+	I2CIFG = 0;
+
+	//Set callback function for interrupt handler
+	I2C_callback = cb;
 	// Enable I2C
 	U0CTL |= I2CEN;
 
-	I2C_callback = cb;
+
 }
 
 void i2c_enable_interrupt()
 {
-	I2CIE |= RXRDYIE;
+	I2CIE |= RXRDYIE + TXRDYIE;
 }
 
 void i2c_disable_interrupt()
@@ -38,13 +43,11 @@ void i2c_disable_interrupt()
 }
 
 
-
-__attribute__((interrupt(USART0RX_VECTOR))) void I2C_rx (void)
+void I2C_rx (void)
 {
 	//Data has been received from the temperature sensor:
 	I2C_callback();
 	I2CIFG |= RXRDYIFG;
-	U0CTL |= MST;
 }
 void i2c_send_byte(uint8_t txdat){
 	// Three byte transfer
@@ -87,14 +90,14 @@ uint8_t i2c_receive_byte(uint8_t readReg){
 	recByte = I2CDRB;
 	
 	// Wait for receiver to be ready
-	//while((I2CIFG & RXRDYIFG) == 0);
+	while((I2CIFG & RXRDYIFG) == 0);
 	
 	// Cant tell what this does but I couldnt get it to work without it
 	// I found it in some example code
-	//i = i + I2CDRB;
+	i = i + I2CDRB;
 	
 	// Wait for the transmission to be complete
-	//while((I2CTCTL & I2CSTP) == 0x02);
+	while(I2CTCTL & I2CSTP);
 	
 	return recByte;
 }

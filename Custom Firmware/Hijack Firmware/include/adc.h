@@ -39,3 +39,4 @@ uint16_t adc_getResult (uint8_t conv_num);
 #endif
 
 #endif
+

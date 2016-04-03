@@ -30,6 +30,7 @@ timer_captureCallback *timer_captureCbPtr;
 timer_periodicCallback *timer_periodicCbPtr;
 
 void timer_init (int f) {
+	__delay_cycles(1000);
 	//////////////////////////////////
 	// Comparator
 
@@ -52,10 +53,11 @@ void timer_init (int f) {
 
 	///////////////////////////
 	// TimerB - Periodic Timer
-	P4SEL |= BIT0;
-	P4DIR |= BIT0;
+//	P4SEL |= BIT0;
+	P4DIR |= BIT0; //set as output
+	P4SEL &= ~BIT0; //Set as GPIO
 
-	//16 bit counter, SMCLK source, interrupt enable, reset timer
+	//16 bit counter, SMCLK source(TBSSEL_2) / ACLK source(TBSSEL_1), interrupt enable, reset timer
 	TBCTL = TBSSEL_2 + TBCLR + TBIE;
 
 	//CCTL: no capture, compare mode, output set by OUT bit value, interrupt disabled (?)
@@ -63,10 +65,10 @@ void timer_init (int f) {
 	/*
 	count up once per microsecond
 	CCR0 = T/2, T = 2*CCR0
-	frequency = 1/T = 1/(2*CCR0), CCR0 = 1/(2*f)
+	f = 1/T = 1/(2*CCR0), CCR0 = 1/(2*f)
 	*/
 	//TBCCR0 = DELTAT*16;
-	TBCCR0 = 1/(2*f);
+	TBCCR0 = 1000000/(2*f);
 }
 
 void timer_start (void) {
