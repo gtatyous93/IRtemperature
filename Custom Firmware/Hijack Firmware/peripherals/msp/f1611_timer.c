@@ -29,7 +29,7 @@
 timer_captureCallback *timer_captureCbPtr;
 timer_periodicCallback *timer_periodicCbPtr;
 
-void timer_init (int f) {
+void timer_init (uint32_t f) {
 	__delay_cycles(1000);
 	//////////////////////////////////
 	// Comparator
@@ -53,14 +53,14 @@ void timer_init (int f) {
 
 	///////////////////////////
 	// TimerB - Periodic Timer
-//	P4SEL |= BIT0;
+//	P4SEL |= BIT0; //Timer B output
 	P4DIR |= BIT0; //set as output
 	P4SEL &= ~BIT0; //Set as GPIO
 
 	//16 bit counter, SMCLK source(TBSSEL_2) / ACLK source(TBSSEL_1), interrupt enable, reset timer
 	TBCTL = TBSSEL_2 + TBCLR + TBIE;
 
-	//CCTL: no capture, compare mode, output set by OUT bit value, interrupt disabled (?)
+	//CCTL: no capture, compare mode, output set by OUT bit value, interrupt enable
 	TBCCTL0 = CCIE;
 	/*
 	count up once per microsecond
@@ -107,30 +107,13 @@ __interrupt void Timer_A1 (void) {
 
 	TACCTL1 &= ~CCIFG;
 }
-/*
-#pragma vector = TIMERB0_VECTOR
-__interrupt void Timer_B0 (void)
-*/
+
 __attribute__((interrupt(TIMERB0_VECTOR))) void Timer_B0 (void)
 {
 	timer_periodicCbPtr();
 	TBCTL |= TBIFG;
 	TBCTL &= ~TBIFG;
-
 	TBCCTL1 &= ~(COV);
-	//TBIV |= TBIFG;
-
-	//TBIV = ~0;
-	//TBCCTL1 &= ~CCIFG;
-	/*
-	if (pendingTimerStop) {
-		pendingStop = 0;
-		pendingShutdown = 0;
-		pendingTimerStop = 0;
-		pendingStart = 1;
-		_BIS_SR_IRQ(LPM3_bits);
-	}
-	*/
 }
 
 

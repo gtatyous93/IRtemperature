@@ -1,11 +1,11 @@
 #include "i2c.h"
 
-timer_periodicCallback *I2C_callback;
+i2c_IRQHandler *I2C_callback;
 
 #define TMP_SDA_SLAVE	0b1000010
 #define TMP007_I2CADDR 0x40
 
-void i2c_init(timer_periodicCallback* cb,int f){
+void i2c_init(i2c_IRQHandler* cb,int f){
 
 	//Configure I2C: I2CEN must be disabled for all configuration
 	U0CTL = 0;

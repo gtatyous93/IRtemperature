@@ -11,11 +11,12 @@
 
 #include "i2c_test.h"
 
-volatile int				I2CBufferPointer = 0;
-volatile int				I2CReadCount 	 = 0;
-volatile int				I2CWriteCount 	 = 0;
-volatile unsigned char	*pI2CBuffer 	 = 0;
-volatile unsigned char	I2CSlaveRegAddress = 0;
+volatile int			I2CBufferPointer = 0;
+volatile int			I2CReadCount 	 = 0;
+volatile int			I2CWriteCount 	 = 0;
+volatile uint8_t		*pI2CBuffer 	 = 0;
+volatile uint8_t		I2CSlaveRegAddress = 0;
+volatile uint8_t 		current_TMP_regAddress = 0;
 
 #define BIT_CLEAR(x,y)	x &= ~(y);
 #define BIT_SET(x,y)	x |= (y);
@@ -37,30 +38,21 @@ void InitI2CModule(void)
 	delay_ms();
 	//P3.4 P3.5 UART0 TXD, RXD pin not select
 	BIT_CLEAR(P3SEL, BIT4 + BIT5);
-	//SET_PORT_IO_UTX0_PIN();
-	//SET_PORT_IO_URX0_PIN();
-
 	//P3.1,P3.3  I2C pin select
 	BIT_SET(P3SEL, BIT1 + BIT3);
-	//SET_PORT_MOD_I2C_SDA_PIN();
-	//SET_PORT_MOD_I2C_SCL_PIN();
-
-	//P3.1 P3.3 Set up Inputt
+	//P3.1 P3.3 Set up Input
 	BIT_CLEAR(P3DIR, BIT1 + BIT3);
-	//SET_PORT_IN_I2C_SDA_PIN();
-	//SET_PORT_IN_I2C_SCL_PIN();
 
-	U0CTL = 0;						//Must need. for switch i2c <=> serial, spi
-
+	U0CTL = 0;
 	BIT_SET(U0CTL, SWRST);			//I2C operation is enabled 	
 
 
 	BIT_SET(U0CTL, I2C + SYNC);			// Switch USART0 to I2C mode
 
-	BIT_CLEAR(U0CTL, I2CEN);				// clear I2CEN bit => necessary to re-configure I2C module(must this line)
-
+	BIT_CLEAR(U0CTL, I2CEN);				// clear I2CEN bit => necessary to re-configure I2C module
+	//U0CTL &= ~(XA+LISTEN+RXDMAEN+TXDMAEN);
 	BIT_CLEAR(U0CTL, XA);	 	  			//7bit addressing
-	BIT_CLEAR(U0CTL, LISTEN);				// Nomal Mode,(<=> loopback)
+	BIT_CLEAR(U0CTL, LISTEN);				// Normal Mode,(<=> loopback)
 	BIT_CLEAR(U0CTL, RXDMAEN);				// I2C RXD DMA Disable
 	BIT_CLEAR(U0CTL, TXDMAEN);				// I2C TXD DMA Disable
 
@@ -73,11 +65,9 @@ void InitI2CModule(void)
 
 	I2COA = 3;			// own address(local)
 
-//	I2CNDAT = I2CTXDByteCnt;		// the number of bytes transmitted by I2C 
-
 	// set i2c speed
 	I2CPSC = 0X00;
-  	I2CSCLL = I2CSCLH = 0X0A;		// 100K from 8M
+  	I2CSCLL = I2CSCLH = 0X0A;
 
 	
 	BIT_SET(U0CTL, I2CEN);					// Enable I2C
@@ -117,7 +107,7 @@ void InitI2CRx(void)
 //	func : WriteI2CDeviceREG
 //	description : Write Register of Slave Device through I2C(DataCount)
 //******************************************************************************
-void WriteI2CDeviceREG(char SlaveAddress, char SlaveRegAddress, int WriteCnt, unsigned char *pWriteBuf)
+void WriteI2CDeviceREG(uint8_t SlaveAddress, uint8_t SlaveRegAddress, int WriteCnt, volatile uint8_t *pWriteBuf)
 {
 
 	while (I2CDCTL&I2CBUSY);	// wait until I2C module has finished all operations
@@ -128,11 +118,12 @@ void WriteI2CDeviceREG(char SlaveAddress, char SlaveRegAddress, int WriteCnt, un
 
 	if(pI2CBuffer != 0)
 		free((void *)pI2CBuffer);//error
+	if(WriteCnt != 0)
+	{
+		pI2CBuffer = (uint8_t*)malloc(WriteCnt);
+		memcpy((void *)pI2CBuffer, (void *)pWriteBuf, WriteCnt);
+	}
 	
-	pI2CBuffer = (unsigned char*)malloc(WriteCnt);
-
-	memcpy((void *)pI2CBuffer, (void *)pWriteBuf, WriteCnt);
-		
 	I2CNDAT = I2CWriteCount = WriteCnt + 1;
 	I2CBufferPointer = 0;		
 	
@@ -148,15 +139,13 @@ void WriteI2CDeviceREG(char SlaveAddress, char SlaveRegAddress, int WriteCnt, un
 //	func : ReadI2CDeviceREG
 //	description : Read Register of Slave Device through I2C
 //******************************************************************************
-char ReadI2CDeviceREG(char SlaveAddress, char SlaveRegAddress, int ReadCnt, unsigned char *pReadBuf)
+uint8_t ReadI2CDeviceREG(uint8_t SlaveAddress, uint8_t SlaveRegAddress, int ReadCnt, volatile uint8_t *pReadBuf)
 {
 	if(ReadCnt == 0) return 0;
 	if(pReadBuf == 0) return 0;
 	
 	/*
-	P1OUT = 1<<2;
-	while (I2CDCTL&I2CBUSY);			// wait until I2C module has finished all operations
-	P1OUT = 0;
+	while (I2CDCTL&I2CBUSY);			// wait until I2C module has finished all operations\
 	I2CSA = SlaveAddress;				//set Slave address
 
 	I2CSlaveRegAddress = SlaveRegAddress;		// register address of Slave Device
@@ -171,10 +160,15 @@ char ReadI2CDeviceREG(char SlaveAddress, char SlaveRegAddress, int ReadCnt, unsi
 	
 
 	*/
-	//P1OUT = 1<<2;
-	WriteI2CDeviceREG(SlaveAddress,SlaveRegAddress,1,pReadBuf);
-	//while ((~I2CIFG)& ARDYIFG);  // wait until transmission is finished
-	//P1OUT = 2<<2;
+	/*
+	if(current_TMP_regAddress != SlaveRegAddress)
+	{
+		WriteI2CDeviceREG(SlaveAddress,SlaveRegAddress,1,pReadBuf);
+		//current_TMP_regAddress = SlaveRegAddress;
+	}
+*/
+	WriteI2CDeviceREG(SlaveAddress,SlaveRegAddress,0,pReadBuf);
+
 	while (I2CDCTL&I2CBUSY);
 	pI2CBuffer = pReadBuf;
 	I2CNDAT = I2CReadCount = ReadCnt;
@@ -200,21 +194,9 @@ __attribute__((interrupt(USART0TX_VECTOR))) void ISR_I2C_tx(void)
 {
 	//I2C interrupt 
 	switch (I2CIV)
-	{ 
-		case I2CIV_AL:		// I2C interrupt vector: Arbitration lost (ALIFG) 
-			break;
-
-		case I2CIV_NACK:	// I2C interrupt vector: No acknowledge (NACKIFG) 
-			break;
-
-		case I2CIV_OA:		// I2C interrupt vector: Own address (OAIFG) 
-			break;
-
-		case I2CIV_ARDY:	// I2C interrupt vector: Access ready (ARDYIFG) 
-			break;
-
+	{
 		case I2CIV_RXRDY:	// I2C interrupt vector: Receive ready (RXRDYIFG) 
-			*(unsigned char *)(pI2CBuffer + I2CBufferPointer) = I2CDRB;	 // store received data in buffer
+			*(uint8_t *)(pI2CBuffer + I2CBufferPointer) = I2CDRB;	 // store received data in buffer
 		
 			if(++I2CBufferPointer >= I2CReadCount)
 			{
@@ -230,13 +212,11 @@ __attribute__((interrupt(USART0TX_VECTOR))) void ISR_I2C_tx(void)
 			if(I2CBufferPointer == 0)
 				I2CDRB = I2CSlaveRegAddress;
 			else
-				I2CDRB = *(unsigned char *)(pI2CBuffer + (I2CBufferPointer - 1));
+				I2CDRB = *(uint8_t *)(pI2CBuffer + (I2CBufferPointer - 1));
 			
 			if(++I2CBufferPointer >= I2CWriteCount)
 			{
-				if(I2CWriteCount == 1)//Tx slave REG Address in Read Sequence
-					;
-				else
+				if(I2CWriteCount != 1)//Tx slave REG Address in Read Sequence
 					free((void *)pI2CBuffer);
 				
 				I2CIE &= ~TXRDYIE;	// disable interrupts
@@ -244,15 +224,7 @@ __attribute__((interrupt(USART0TX_VECTOR))) void ISR_I2C_tx(void)
 			}
 			break;
 
-		case I2CIV_GC:		// I2C interrupt vector: General call (GCIFG) 
-			break;
-
-		case I2CIV_STT: 	// I2C interrupt vector: Start condition (STTIFG) 
-			break;
-
 	}
-
-
 }
 
 
@@ -275,7 +247,7 @@ __attribute__((interrupt(USART0RX_VECTOR))) void ISR_I2C_rx(void)
 
 		case I2CIV_RXRDY:	// I2C interrupt vector: Receive ready (RXRDYIFG)
 
-			*(unsigned char *)(pI2CBuffer + I2CBufferPointer) = I2CDRB;	 // store received data in buffer
+			*(uint8_t *)(pI2CBuffer + I2CBufferPointer) = I2CDRB;	 // store received data in buffer
 
 			if(++I2CBufferPointer >= I2CReadCount)
 			{
@@ -291,7 +263,7 @@ __attribute__((interrupt(USART0RX_VECTOR))) void ISR_I2C_rx(void)
 			if(I2CBufferPointer == 0)
 				I2CDRB = I2CSlaveRegAddress;
 			else
-				I2CDRB = *(unsigned char *)(pI2CBuffer + I2CBufferPointer - 1);
+				I2CDRB = *(uint8_t *)(pI2CBuffer + I2CBufferPointer - 1);
 
 			if(++I2CBufferPointer >= I2CWriteCount)
 			{

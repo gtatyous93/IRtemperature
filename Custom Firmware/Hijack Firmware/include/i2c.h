@@ -14,9 +14,9 @@
 #define I2C_RECEIVE_INTERRUPT            UCRXIE
 
 
-typedef void timer_periodicCallback(void);
+typedef void i2c_IRQHandler(void);
 
-void i2c_init(timer_periodicCallback*, int);
+void i2c_init(i2c_IRQHandler*, int);
 
 void i2c_enable_interrupt();
 

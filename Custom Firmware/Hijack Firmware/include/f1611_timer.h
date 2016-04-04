@@ -30,7 +30,7 @@ typedef void timer_captureCallback(uint16_t);
 typedef void timer_periodicCallback(void);
 
 
-void timer_init (int);
+void timer_init (uint32_t);
 void timer_start (void);
 void timer_setCaptureCallback (timer_captureCallback* cb);
 void timer_setPeriodicCallback (timer_periodicCallback* cb);
