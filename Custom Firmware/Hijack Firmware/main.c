@@ -42,7 +42,7 @@
 
 #define PREAMBLE_BIT_COUNT (5)
 
-enum {idle, transmit_1,transmit_2,preamble,ready} tx_state = ready;
+volatile enum {idle, transmit_1,transmit_2,preamble,ready} tx_state = ready;
 
 
 #define IN_TYPE			uint16_t
@@ -59,10 +59,17 @@ void translate_message(IN_TYPE *input_data, volatile OUT_TYPE *encoded_data)
 {
 	//take data of size INPUT_TEMP_SIZE bits, translate manchester encoding  (0->0b01, 1->0b10) to output of twice this size
 	int index;
-//	for(index=0;index<INPUT_TEMP_SIZE;index++)
-	for(index=(INPUT_TEMP_SIZE-1);index>=0;index--)
-		*encoded_data = (*encoded_data<<2) | (1+(1&(*input_data>>index)));
+	IN_TYPE in_sample = *input_data;
+	OUT_TYPE out_sample = 0;
+	for(index=0;index<INPUT_TEMP_SIZE;index++)
+//	for(index=(INPUT_TEMP_SIZE-1);index>=0;index--)
+	{
+		//*encoded_data = (*encoded_data<<2) | (1+(1&(*input_data>>index)));
+		out_sample = (out_sample << 2) | (1+(1&(in_sample>>index)));
+	}
+	*encoded_data = out_sample;
 }
+
 void TIMERB_handler(void)
 {
 	//Keep track of the position in the current frame being sent (10, 01) using a frame index.
@@ -74,7 +81,7 @@ void TIMERB_handler(void)
 	{
 	case ready:
 		P4OUT = 1;
-		packet_index = (PREAMBLE_BIT_COUNT-1);
+		packet_index = (PREAMBLE_BIT_COUNT);
 		tx_state = preamble;
 		if(mut_lock == 1)
 		{
@@ -82,18 +89,20 @@ void TIMERB_handler(void)
 			mut_lock = 0;
 		}
 	case preamble:
-		P4OUT = 1;
-		if(packet_index-- <= 0)
+
+		if(--packet_index <= 0)
 		{
+			P4OUT = 0; //start bit
 			tx_state = transmit_1;
 			packet_index=0;
 		}
+		else P4OUT = 1;
 		break;
 	case transmit_1:
 		//TBCCTL0 = 0x4&(manchester_output >> (packet_index-2)) ;
 		bit = 0x1&(bitbang_output >> (packet_index)) ;
 		P4OUT = bit;
-		if(packet_index++ >= OUTPUT_TEMP_SIZE)
+		if(++packet_index >= OUTPUT_TEMP_SIZE)
 		{
 			tx_state = ready;
 			packet_index = 0;
@@ -149,7 +158,9 @@ int main ()
 		ReadI2CDeviceREG(TMP_AD00_SLAVE, TMP007_VOBJ, 2, pReadBuf);
 		if(mut_lock == 0)
 		{
-			temp_message = __swap_bytes( ((uint16_t) *pReadBuf) );
+			//temp_message = __swap_bytes( *((uint16_t *)pReadBuf) );
+
+			temp_message = *((uint16_t *)pReadBuf);
 			translate_message(&temp_message,&manchester_output);
 			mut_lock = 1;
 		}

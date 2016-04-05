@@ -15,22 +15,23 @@
 #include <adc.h>
 
 #define SEQUENCE0 0
-#define BUFFERLEN	256
+#define BUFFERLEN	348
 #define VREF 	3
-
-//3000V: 1<<13
-//0V: 0?
-//RESOLUTION: (1<<13)/3000 units/mv
-//
-
 #define RESOLUTION		(1.24463519313)
 #define	MV_TO_BITS(x)	(RESOLUTION*(float)x)
-#define V_ONE			1195
-#define V_ZERO			883
+
+
+#define V_ONE			1140
+#define V_ZERO			945
 #define CLASSIFY(x)	(abs(x-V_ONE) > abs(x-V_ZERO) ? 0 : 1)
 
+#define PREAMBLE_LEN	(5)
+#define SAMPLES_PER_BIT	(4) /*programmatic definition?*/
+
 uint32_t Sequence_data[BUFFERLEN];
+uint64_t manchester_output = 0;
 void processSequence(void);
+
 
 
 void Sequence_IRQHandler(void)
@@ -54,16 +55,101 @@ void Sequence_IRQHandler(void)
 
 void processSequence(void)
 {
-	uint32_t index1 = 0,index2=0;
+	uint8_t decode_state = 0;
+	uint32_t index=0;
 	uint32_t manchester_result = 0;
-	uint32_t temp_result = 0;
+	int32_t temp_result = 0;
+	uint32_t bit_count = 0,zero_count = 0;
+	uint8_t bit = 0,bit_previous=0;
+
+	//For debugging
+	uint16_t PREAMBLE_END,START_BIT_END,MANCH_BIT_END,MESSAGE_END;
 	/*
 	 * Classify each sample as a zero or one (or: find scheme that is better suited to manchester decoding)
 	 */
+
 	for(index=0;index<=BUFFERLEN;index++)
 	{
-		//manchester_result = (manchester_result << 1) | CLASSIFY(Sequence_data[index]);
-		Sequence_data[index] =CLASSIFY(Sequence_data[index]);
+		bit = (Sequence_data[index] < 100) ? bit_previous : CLASSIFY(Sequence_data[index]) ;
+		bit_previous = bit;
+
+		switch(decode_state)
+		{
+			case 0: //Wait for preamble
+				/*
+				if(bit==1) {bit_count++; zero_count = 0;}
+				else if(bit==0) {zero_count++;bit_count++;}
+				if(zero_count >= SAMPLES_PER_BIT)
+				{
+					bit_count = 0;
+					zero_count = 0;
+				}
+				*/
+				if(bit==1) bit_count++;
+				else if(bit==0) bit_count = 0;
+				//allow for a certain number of bit errors, at least one full preamble bit will be lost
+				if(bit_count >= SAMPLES_PER_BIT*(PREAMBLE_LEN-1))
+				{
+					bit_count = 0;
+					decode_state = 1;
+					PREAMBLE_END = index;
+				}
+				break;
+			case 1: //Preamble received, wait for start bit
+				if(bit == 0) bit_count++;
+				if(bit==1) bit_count = 0;
+				if(bit_count >= SAMPLES_PER_BIT)
+				{
+					decode_state = 2;
+					START_BIT_END = index;
+					temp_result = 0;
+					bit_count = 0;
+
+				}
+				break;
+			case 2: //Start bit received, parsing is aligned now
+				/* We need to maintain alignment, since drift is possible
+				 * 	To accomplish this, the bit count will be used to indicate (with some uncertainty)
+				 * 	that a bit has been detected. Its contents will be inspected and (taking into account errors)
+				 * 	it will be assigned a value of 1 or 0, from a string of bits such as ...11101.... or ...01000....
+				 * 	These bit strings will be separated from other bits based on "estimated" transitions
+				 */
+				temp_result = (temp_result << 1) | bit;
+				//temp_result += bit;
+
+				if(++bit_count >= (2*SAMPLES_PER_BIT))
+				{
+					//LSB - MSB
+					temp_result = (temp_result>>SAMPLES_PER_BIT) - (temp_result&((1<<SAMPLES_PER_BIT)-1));
+					manchester_result = (manchester_result << 1 ) | ((temp_result < 0) ? 0 : 1);
+					temp_result = 0;
+					MANCH_BIT_END = (index-START_BIT_END)>>2;
+					bit_count = 0;
+					zero_count++;
+				}
+
+				/*
+				if(++bit_count >= SAMPLES_PER_BIT)
+				{
+					manchester_result = (manchester_result << 1) | ((temp_result>2) ? 1 : 0);
+					bit_count = 0;
+					temp_result = 0;
+					zero_count++;
+				}
+				*/
+				if(zero_count >= 16)
+				{
+					bit_count = 0;
+					decode_state = 0;
+					MESSAGE_END = index;
+
+					//convert to bit positions: find number of SAMPLE_LEN offsets from start bit, divide by 2 again to get decoded bit length
+					MESSAGE_END = (index-START_BIT_END) >> 3;
+				}
+ 				break;
+		}
+
+
 		//temp_result += CLASSIFY(Sequence_data[index]);
 
 
@@ -128,7 +214,6 @@ int main(void) {
 	 *
 	 */
 	init_ADC();
-	//init_GPIO();
 	while(1)
 	{
 	}
