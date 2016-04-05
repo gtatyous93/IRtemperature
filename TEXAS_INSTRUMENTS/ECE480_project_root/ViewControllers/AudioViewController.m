@@ -35,7 +35,7 @@ OSStatus recordingCallback(void *inRefCon,
      */
     buffer.mDataByteSize = inNumberFrames * sizeof(IN_SAMPLE_TYPE) ; // sample size
     buffer.mNumberChannels = 1; // one channel
-    buffer.mData = malloc( inNumberFrames * sizeof(IN_SAMPLE_TYPE) ); // buffer size
+    buffer.mData = malloc( 2*buffer.mDataByteSize ); // buffer size
     
     // we put our buffer into a bufferlist array for rendering
   
@@ -44,12 +44,12 @@ OSStatus recordingCallback(void *inRefCon,
     bufferList.mBuffers[0] = buffer;
     
     // render input and check for error
-    status = AudioUnitRender([viewController audioUnit], ioActionFlags, inTimeStamp, inBusNumber, inNumberFrames,     &bufferList);
+    //status = AudioUnitRender([viewController audioUnit], ioActionFlags, inTimeStamp, inBusNumber, inNumberFrames,     &bufferList);
     //[viewController hasError:status:__FILE__:__LINE__];
   
     // process the bufferlist in the audio processor
   
-    //[viewController processBuffer:&buffer];
+    [viewController processBuffer:&bufferList];
     // clean up the buffer
     
 
@@ -336,7 +336,7 @@ __OSX_AVAILABLE_STARTING(__MAC_10_2,__IPHONE_2_0)
   return noErr;
 }*/
 
--(void)sdBuffer:(AudioBuffer*) audioBuffer
+-(void)processBuffer:(AudioBuffer*) audioBuffer
 {
     
     [[NSOperationQueue mainQueue] addOperationWithBlock:^ {
@@ -428,6 +428,8 @@ __OSX_AVAILABLE_STARTING(__MAC_10_2,__IPHONE_2_0)
                                0,
                                &input,
                                sizeof(input));
+    Float32 preferredBufferSize= 0.0232;
+    err = AudioUnitSetProperty(toneUnit, kAudioSessionProperty_PreferredHardwareIOBufferDuration,kAudioUnitScope_Input, 0, sizeof(preferredBufferSize),&preferredBufferSize);
     NSAssert1(err == noErr, @"Error setting callback: %ld", err);
     
     // Set the format to 32 bit, single channel, floating point, linear PCM
