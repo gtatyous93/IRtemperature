@@ -1,0 +1,16 @@
+To load custom firmware to the Hijack board, a bootstrapper must be used. A boostrapper script can be found in the Hijack_BSL directory at the root of the working tree, a README file in there provides a guide for installation and execution of the module.
+
+Code Composer Studio can be used to generate a hex output file. Intel Hex (ihex) and TI-text (titext) formats are supported by the Python bootstrapper. To generate machine code from Code Composer, go to Project->Properties ->Build setting. Change the build output settings (for CCSv6, enable and use the Hex Utility inside the CCS Build tab of the project Properties window) and select the file format to use. After this has been enabled, building the project will also generate a hex file in the Debug folder of the selected workspace.
+
+
+The python bootstrap loader has a bug in its installation code that prevents it from being added correctly to the system path. There are two work-arounds to this issue:
+	Copy all of the files in the Hijack_BSL directory (the msp430-tools module source files) to the "Lib/site-packages" folder for your python2.6 installation specified in your system path settings. This is the better solution, it will allow you to run the bootloader code form anu directory. 
+	Copy the hex files to the Hijack_BSL directory in the git repo, and run the bootloader script directly from that directory. Every time a new hex file is generated, it must be copied here.
+
+
+If you follow these steps (and those in the BSL script README) then you will be able to create projects for the MSP4301611 and load them using the Hijack programmer.	
+
+
+
+
+

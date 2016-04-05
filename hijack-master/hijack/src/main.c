@@ -1,4 +1,4 @@
-/*
+/*f
  *  This file is part of hijack-infinity.
  *
  *  hijack-infinity is free software: you can redistribute it and/or modify
@@ -15,280 +15,156 @@
  *  along with hijack-infinity.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
+#include <MSP430F1611.h>
 #include <inttypes.h>
 #include <stdio.h>
 
+/*
 #include "pal.h"
 #include "codingStateMachine.h"
 #include "framingEngine.h"
 #include "packet.h"
+*/
+
+#include "config.h"
 #include "utility.h"
 
-// TO FIX
  #include "interrupt.h"
-void int_pgood();
-void int_pbad();
-
-volatile uint8_t pTransitionState = 0;
-
-// pSend 0 - Send pGood
-// pSend 1 - Send pBad
-// pSend 2 - Send pStd
-volatile uint8_t pSend = 0;
-volatile uint8_t pLastSent = 0;
-
-volatile uint8_t pendingStop = 0;
-volatile uint8_t pendingShutdown = 0;
-volatile uint8_t pendingTimerStop = 0;
-
-volatile uint8_t pendingStart = 0;
+#include "i2c.h"
 
 
-// STOP FIX
+#include "f1611_timer.h"
+
+#define PREAMBLE_BIT_COUNT 5;
+uint32_t i2c_receive_message;
+uint32_t timerB_transmit_message[2] = {0,0};
+
+enum {idle, transmit_1,transmit_2,preamble,ready} tx_state = ready;
 
 
-packet_t booted_packet = {1, 0, 1, 0, 3, {0}};
-packet_t data_packet = {2, 0, 1, 0, 8, {0}};
-
-
-
-uint8_t outMessage[] = {
-	0xAB, 0xDC, 0xEF, 0x12, 0x34, 0x56, 0, 0, 0
-};
-
-uint8_t pgoodMessage[] = {
-	0x01
-};
-
-uint8_t pbadMessage[] = {
-	0x02
-};
-
-
-uint16_t temp_buf[100] = {0};
-uint8_t buf_idx= 0;
-
-uint8_t sendingPacket = 0;
-uint8_t gotack = 0;
-
-
-void packetReceivedCallback(packet_t* pkt) {
-	gotack = 1;
+void delay2(void)
+{
+	volatile int i = 10;
+	while(i-->0){}
 }
 
-void packetSentCallback(void) {
-/*	if (pendingShutdown) {
-		pal_pause();
-		pendingTimerStop = 1;
-	}
-
-	if (pendingStop) {
-		fe_writeTxBuffer(pbadMessage, 1);
-		pendingShutdown = 1;
-	}
-	else if (pendingStart) {
-		fe_writeTxBuffer(pgoodMessage, 1);
-		pendingStart = 0;
-	}
-	else {
-		fe_writeTxBuffer(outMessage, 6);
-	}*/
-
-//	booted_packet.data[0]++;
-		sendingPacket = 0;
-}
-
-void setthedata (uint8_t d) {
-	booted_packet.data[0] = d;
-}
-
-void incthedata () {
-	booted_packet.data[0]++;
-}
-
-void allthedata (uint8_t a, uint8_t b, uint8_t c, uint8_t d) {
-	booted_packet.data[1] = a;
-	booted_packet.data[2] = b;
-	booted_packet.data[3] = c;
-	booted_packet.data[4] = d;
-}
-
-void updateAnalogOutputBuffer(void) {
-	//pal_sampleAnalogGpios();
-	uint16_t temp_ext = 0;
-	uint16_t vcc = 0;
-	uint16_t sample1 = 0;
-	uint16_t sample2 = 0;
-
-	//vcc = pal_readAnalogGpio(pal_gpio_vref);
-	//temp_ext = pal_readAnalogGpio(pal_gpio_temp);
-	//sample1 = pal_readAnalogGpio(pal_gpio_ain1);
-	//sample2 = pal_readAnalogGpio(pal_gpio_ain2);
-
-	outMessage[1] = vcc & 0xFF;
-	outMessage[2] = (vcc >> 8) & 0xFF;
-	outMessage[3] = temp_ext & 0xFF;
-	outMessage[4] = (temp_ext >> 8) & 0xFF;
-	outMessage[5] = sample1 & 0xFF;
-	outMessage[6] = (sample1 >> 8) & 0xFF;
-	outMessage[7] = sample2 & 0xFF;
-	outMessage[8] = (sample2 >> 8) & 0xFF;
-}
-
-void updateDigitalOutputBuffer(void) {
-	outMessage[0] = (outMessage[0] & ~(1 << 0)) |
-		((pal_readDigitalGpio(pal_gpio_din1) & 0x1) << 0);
-	outMessage[0] = (outMessage[0] & ~(1 << 1)) |
-		((pal_readDigitalGpio(pal_gpio_din2) & 0x1) << 1);
-}
-
-void initializeSystem(void) {
-	pal_init();
-
-	// Initialize the transition-edge-length
-	// manchester decoder.
-	csm_init();
-	csm_registerReceiveCallback(fe_handleBufferReceived);
-	csm_registerTransmitCallback(fe_handleBufferSent);
-
-	// Initialize the framing engine to process
-	// the raw byte stream.
-	fe_init();
-	fe_registerPacketReceivedCb(packetReceivedCallback);
-	fe_registerPacketSentCb(packetSentCallback);
-	fe_registerBufferSender(csm_sendBuffer);
-
-	pal_registerPeriodicTimerCb(csm_txTimerInterrupt);
-	pal_registerCaptureTimerCb(csm_rxEdgeInterrupt);
-
-
-	//pal_registerPeriodicTimerCb(periodicTimerFn);
-
-//	pal_setDigitalGpio(pal_gpio_mic, 0);
-//	pal_setDigitalGpio(pal_gpio_mic, 1);
-//	pal_setDigitalGpio(pal_gpio_mic, 0);
-//	pal_setDigitalGpio(pal_gpio_mic, 1);
-
-	// Start the interrupt-driven timers.
-	pal_startTimers();
-
-	pal_setDigitalGpio(pal_gpio_led, 1);
-
-	// Start the transmit callback-driven
-	// loop
-//	fe_sendPacket(&booted_packet);
-}
-
-// This is the main loop. It's not very
-// power efficient right now, it should
-// do some microcontroller sleep commands
-// and use wakeups.
-int main () {
-	initializeSystem();
-
-	// TODO: Add sleep commands!
-
-		/*while(1)
+void translate_message(void)
+{
+	int i;
+	for(i=0;i<=32;i++)
 	{
-		pal_setDigitalGpio(pal_gpio_led, 1);
-		pal_setDigitalGpio(pal_gpio_led, 0);
-	}*/
-
-	// TO FIX
-	interrupt_init();
-
-//	if((P2IN >> 0) & 0x01){
-//		interrupt_create(2, 0, HIGH_TO_LOW, int_pbad);
-//	}
-//	else{
-//		interrupt_create(2, 0, LOW_TO_HIGH, int_pgood);
-//	}
-
-	// STOP FIX
-
-	gpio_toggle(LED_PORT, LED_PIN);
-	gpio_toggle(LED_PORT, LED_PIN);
-	gpio_toggle(LED_PORT, LED_PIN);
-	gpio_toggle(LED_PORT, LED_PIN);
-	gpio_toggle(LED_PORT, LED_PIN);
-	gpio_toggle(LED_PORT, LED_PIN);
-//	gpio_toggle(LED_PORT, LED_PIN);
-
-//	P4SEL |= 0x02;
-
-	while (1) {
-		while (sendingPacket) {
-			util_delayMs(100);
+		if(i < 16)
+		{
+			if(i2c_receive_message&(0x1<<i)) 	timerB_transmit_message[0] = (timerB_transmit_message[0] << 2) | 2;
+			else								timerB_transmit_message[0] = (timerB_transmit_message[0] << 2) | 1;
 		}
-		sendingPacket = 1;
-		fe_sendPacket(&booted_packet);
-
-		util_delayMs(1000);
-		booted_packet.data[0]++;
-		if (gotack) {
-			break;
+		else
+		{
+			if(i2c_receive_message&(0x1<<i)) 	timerB_transmit_message[1] = (timerB_transmit_message[1] << 2) | 2;
+			else								timerB_transmit_message[1] = (timerB_transmit_message[1] << 2) | 1;
 		}
+
 	}
+}
+int packetReady = 0;
 
-	gotack = 0;
+void TIMERB_handler(void)
+{
+	//Keep track of the position in the current frame being sent (10, 01) using a frame index.
+	//Keep track of the number being translated
+	static int packet_index = 0;
 
-	while (1) {
-		while (sendingPacket) {
-			util_delayMs(100);
+	//TBCCTL0 = packet_index << 2;
+
+	switch(tx_state)
+	{
+	case idle:
+		break;
+	case ready:
+		tx_state = preamble;
+		packet_index = PREAMBLE_BIT_COUNT;
+		//translate_message();
+		timerB_transmit_message[0] = 0x5555;
+		break;
+	case preamble:
+		P4OUT = 1;
+		//TBCCTL0 = (1<<4);
+		packet_index--;
+		if(packet_index <= 0)
+		{
+			tx_state = transmit_1;
+			packet_index=0;
 		}
-		sendingPacket = 1;
-		fe_sendPacket(&data_packet);
-
-		util_delayMs(1000);
-		data_packet.data[0]++;
-		if (gotack) {
-			break;
+		break;
+	case transmit_1:
+		//TBCCTL0 = 0x4&(timerB_transmit_message >> (packet_index-2)) ;
+		P4OUT = 0x1&(timerB_transmit_message[0] >> (packet_index)) ;
+		packet_index++;
+		if(packet_index >= 31)
+		{
+			tx_state = transmit_2;
+			packet_index = 0;
 		}
+		break;
+	case transmit_2:
+		//TBCCTL0 = 0x4&(timerB_transmit_message >> (packet_index-2)) ;
+		P4OUT = 0x1&(timerB_transmit_message[1] >> (packet_index)) ;
+		packet_index++;
+		if(packet_index >= 31)
+		{
+			tx_state = ready;
+			packet_index = 0;
+		}
+		break;
+	default:
+		tx_state = ready;
+		break;
 	}
+	delay2();
 
 
-
-
-
-	while (1) {
-
-
-		//pal_setDigitalGpio(pal_gpio_led, 0);
-		//updateDigitalOutputBuffer();
-		//updateAnalogOutputBuffer();
-		//pal_setDigitalGpio(pal_gpio_led, 1);
-		//pal_loopDelay();
-		//if (pTransitionState == 1) {
-		//	fe_writeTxBuffer(pgoodMessage, 1);
-		//}
-//		_BIS_SR(LPM0_bits);
-		//if (!((P2IN >> 0) & 0x01)) {
-		//	pal_pauseTimers();
-		//	_BIS_SR(LPM3_bits);
-		//}
-	}
-
-    return 0;
 }
 
-void int_pgood(){
-	//pal_setDigitalGpio(pal_gpio_dout1, 1);
-	pwr_on = 1;
-
-	pal_resume();
-	//fe_writeTxBuffer(pgoodMessage, 1);
-	//pTransitionState = 0;
-
-	interrupt_remove(2, 0);
-	interrupt_create(2, 0, HIGH_TO_LOW, int_pbad);
+void I2C_handler(void)
+{
+	int data = I2CDRW;
 }
 
-void int_pbad(){
-	//pal_setDigitalGpio(pal_gpio_dout1, 0);
-	pwr_on = 0;
-	pendingStop = 1;
+int main ()
+{
+	int i = 0;
+	//int count = 0;
+	WDTCTL = WDTPW | WDTHOLD;	// Stop watchdog timer
+	//initializeSystem();
+	util_boardInit();
+	util_enableInterrupt();
+	__bis_SR_register(GIE);
 
-	//pal_pause();
-	interrupt_remove(2, 0);
-	interrupt_create(2, 0, LOW_TO_HIGH, int_pgood);
+	i2c_init(&I2C_handler,9600);
+	i2c_enable_interrupt();
+	timer_init(9600);
+	timer_start();
+    timer_setPeriodicCallback(&TIMERB_handler);
+
+	P4DIR |= BIT0; //set as output
+	P4SEL &= ~BIT0; //Set as GPIO
+	P3DIR |= BIT3; //SCL output
+	i2c_receive_message = 0x5555;
+
+    while(1)
+    {}
+    while(1)
+    {
+
+		i = 3;
+		while(i-->0)
+		{
+			//i2c_receive_message |= i2c_receive_byte(0)<<(8*1);
+
+		}
+		if(tx_state == idle) tx_state = ready;
+	}
+
 }
+
