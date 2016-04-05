@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 #import "AudioViewController.h"
 
-
+float amplit=0;
 
 OSStatus recordingCallback(void *inRefCon,
                            AudioUnitRenderActionFlags *ioActionFlags,
@@ -20,16 +20,15 @@ OSStatus recordingCallback(void *inRefCon,
     
     // the data gets rendered here
     AudioBuffer buffer;
-    static int a = 0;
+  
     // a variable where we check the status
     OSStatus status;
-    
   
     //This is the reference to the object who owns the callback.
+  
     if(!inRefCon) return 0;
     AudioViewController *viewController = (__bridge AudioViewController*) inRefCon;
   
-    
     /*
      on this point we define the number of channels, which is mono
      for the iphone. the number of frames is usally 512 or 1024.
@@ -39,24 +38,25 @@ OSStatus recordingCallback(void *inRefCon,
     buffer.mData = malloc( inNumberFrames * sizeof(IN_SAMPLE_TYPE) ); // buffer size
     
     // we put our buffer into a bufferlist array for rendering
-    /*
+  
     AudioBufferList bufferList;
     bufferList.mNumberBuffers = 1;
     bufferList.mBuffers[0] = buffer;
     
     // render input and check for error
-   // status = AudioUnitRender([viewController audioUnit], ioActionFlags, inTimeStamp, inBusNumber, inNumberFrames,     &bufferList);
+    status = AudioUnitRender([viewController audioUnit], ioActionFlags, inTimeStamp, inBusNumber, inNumberFrames,     &bufferList);
     //[viewController hasError:status:__FILE__:__LINE__];
-    
+  
     // process the bufferlist in the audio processor
-    */
-     //[viewController processBuffer:&buffer];
+  
+    //[viewController processBuffer:&buffer];
     // clean up the buffer
     
 
-//    int thingie = bufferList.mBuffers[0].mData;
+    //int thingie = bufferList.mBuffers[0].mData;
+    //NSLog(@"thingie : ", thingie);
 //    if (thingie)   [viewController frequencyLabel].text = [NSString stringWithFormat:@"%i",thingie];
-    //free(bufferList.mBuffers[0].mData);
+    free(bufferList.mBuffers[0].mData);
     
     return noErr;
 }
@@ -71,7 +71,7 @@ OSStatus RenderTone(
 
 {
     // Fixed amplitude is good enough for our purposes
-    const double amplitude = .45;
+    const double amplitude = amplit;
     
     // Get the tone parameters out of the view controller
     AudioViewController *viewController = (__bridge AudioViewController *)inRefCon;
@@ -79,9 +79,9 @@ OSStatus RenderTone(
     double theta_increment = 2.0 * M_PI * viewController->frequency / viewController->sampleRate;
     
     // This is a mono tone generator so we only need the first buffer
-    const int channel = 0;
-    Float32 *buffer = (Float32 *)ioData->mBuffers[channel].mData;
-    int *rchnl = (int *)ioData->mBuffers[1].mData;
+    //const int channel = 0;
+    Float32 *lchnl = (Float32 *)ioData->mBuffers[0].mData; //rt chnl
+    Float32 *rchnl = (Float32 *)ioData->mBuffers[1].mData; //lf chnl
 
   
     // Generate the samples
@@ -92,15 +92,15 @@ OSStatus RenderTone(
         if ((theta < (1.0 * M_PI)) && (theta > 0.0))
         {
             //positive
-            buffer[frame] = amplitude;
+            //lchnl[frame] = amplitude;
         }
         if ((theta < (2.0 * M_PI)) && (theta > (1.0 * M_PI)))
         {
             //negative
-            buffer[frame] = -amplitude;
+            //lchnl[frame] = -amplitude;
         }
 #else
-         buffer[frame] = sin(theta) * amplitude;
+         rchnl[frame] = sin(theta) * amplitude; //right channel
 #endif
         theta += theta_increment;
         if (theta > 2.0 * M_PI)
@@ -109,7 +109,7 @@ OSStatus RenderTone(
         }
         if ([viewController->myIntegers count] != 0)
         {
-          rchnl[frame] = (int) viewController->myIntegers[0];
+          lchnl[frame] = (int) viewController->myIntegers[0];
           [viewController->myIntegers removeObjectAtIndex:0];
           viewController.cmdstatus.text = @"";
           viewController.cmdstatus.text = @"sent!";
@@ -324,8 +324,19 @@ void ToneInterruptionListener(void *inClientData, UInt32 inInterruptionState)
 
 #pragma mark processing
 
+/*OSStatus AudioUnitRender(					AudioUnit						inUnit,
+                AudioUnitRenderActionFlags * __nullable ioActionFlags,
+                const AudioTimeStamp *			inTimeStamp,
+                UInt32							inOutputBusNumber,
+                UInt32							inNumberFrames,
+                AudioBufferList *				ioData)
+__OSX_AVAILABLE_STARTING(__MAC_10_2,__IPHONE_2_0)
+{
+  NSLog(@"audio unit render");
+  return noErr;
+}*/
 
--(void)processBuffer:(AudioBuffer*) audioBuffer
+-(void)sdBuffer:(AudioBuffer*) audioBuffer
 {
     
     [[NSOperationQueue mainQueue] addOperationWithBlock:^ {
@@ -376,8 +387,9 @@ void ToneInterruptionListener(void *inClientData, UInt32 inInterruptionState)
 - (IBAction)sliderChanged:(id)sender
 {
     UISlider * slider = (UISlider *)sender;
-    threshold = 0.01*(slider.value - .5);
-    frequencyLabel.text = [NSString stringWithFormat:@"%4.4f", threshold];
+    //amplit = 1*(slider.value);
+    //threshold = 0.01*(slider.value - .5);
+    frequencyLabel.text = [NSString stringWithFormat:@"%4.4f", amplit];
 //    frequency = 10000 + 10000*(slider.value - 0.5);
 
     //    if(slider.value > .5) frequency = 100000*slider.value;
@@ -528,7 +540,8 @@ void ToneInterruptionListener(void *inClientData, UInt32 inInterruptionState)
   
     myIntegers = [NSMutableArray array];
     _string_sample = @"";
-    frequency = 18000;
+    amplit = .25;
+    frequency = 32000; //18000
     _current_sample_index = 31;
     _gain = 1;
     [self sliderChanged:frequencySlider];

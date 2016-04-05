@@ -38,7 +38,7 @@
 
 
 //Output settings
-#define OUT_SAMPLE_RATE 500000.00 //441000.00
+#define OUT_SAMPLE_RATE 20000.00 //441000.00
 #define kOutputBus 0
 
 //Input settings
